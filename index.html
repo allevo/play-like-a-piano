@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suona una nota di pianoforte — I numeri dietro il suono</title>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="app-header">
+        <div class="app-title">
+          <h1>Suona una nota di pianoforte</h1>
+          <p class="app-subtitle">I numeri dietro il suono</p>
+        </div>
+        <div class="stage-heading">
+          <h2 id="stage-title">Onda sinusoidale pura</h2>
+          <p id="stage-concept" class="stage-concept"></p>
+        </div>
+        <p id="stage-counter" class="stage-counter">Fase 1 di 9</p>
+      </header>
+
+      <div class="nav-row">
+        <nav
+          id="stage-strip"
+          class="stage-strip"
+          aria-label="Fasi di sintesi"
+        ></nav>
+        <button id="next-section" type="button" class="button next-section">
+          Sezione successiva ›
+        </button>
+      </div>
+
+      <main class="app-main">
+        <section id="intro" class="intro" aria-label="Introduzione" hidden>
+          <p class="intro-lead">
+            I due estremi di questo percorso: la sinusoide grezza da cui
+            partiamo e il pianoforte a cui arriviamo.
+          </p>
+          <div class="intro-actions">
+            <button id="play-sine" type="button" class="button primary">
+              Suona sinusoide
+            </button>
+            <button id="play-piano" type="button" class="button primary">
+              Suona pianoforte
+            </button>
+          </div>
+        </section>
+
+        <section id="stage-visuals" class="visuals">
+          <figure class="panel plot-panel">
+            <figcaption class="panel-head">
+              <h3>Forma d'onda</h3>
+              <div class="panel-actions" id="waveform-controls">
+                <button
+                  type="button"
+                  class="button segment is-active"
+                  data-zoom="full"
+                >
+                  Nota intera
+                </button>
+                <button type="button" class="button segment" data-zoom="50">
+                  Primi 50 ms
+                </button>
+              </div>
+            </figcaption>
+            <canvas id="waveform-canvas"></canvas>
+          </figure>
+
+          <figure class="panel plot-panel">
+            <figcaption class="panel-head">
+              <h3>Spettro di frequenza</h3>
+            </figcaption>
+            <canvas id="spectrum-canvas"></canvas>
+          </figure>
+        </section>
+      </main>
+
+      <section
+        id="explanation-panel"
+        class="panel explanation"
+        aria-label="Spiegazione della fase"
+      >
+        <div class="explanation-main">
+          <p id="stage-explanation"></p>
+          <p id="stage-formula" class="formula"></p>
+        </div>
+        <div class="explanation-cues">
+          <p><span class="cue-label">Ascolta</span><span id="stage-listen"></span></p>
+          <p><span class="cue-label">Osserva</span><span id="stage-look"></span></p>
+        </div>
+      </section>
+
+      <section id="controls-panel" class="controls" aria-label="Controlli">
+        <div class="transport">
+          <button id="play" type="button" class="button primary">
+            Suona A4
+          </button>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
