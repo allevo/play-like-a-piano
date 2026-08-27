@@ -114,4 +114,13 @@ export function drawWaveform(
       ? `${(visibleSeconds * 1000).toFixed(0)} ms`
       : `${visibleSeconds.toFixed(2)} s`;
   ctx.fillText(label, plotLeft + plotWidth, plotTop + plotHeight + 6);
+
+  // Amplitude axis title.
+  ctx.save();
+  ctx.translate(13, plotTop + plotHeight / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Ampiezza (norm.)", 0, 0);
+  ctx.restore();
 }

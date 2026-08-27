@@ -4,6 +4,10 @@ import { renderEnvelopedTone } from "./03-envelope.ts";
 import envelopeSource from "./03-envelope.ts?raw";
 import { renderAdditive } from "./04-additive-synthesis.ts";
 import additiveSource from "./04-additive-synthesis.ts?raw";
+import fourier1 from "./04/triangle_fourier_n_01.png";
+import fourier3 from "./04/triangle_fourier_n_03.png";
+import fourier9 from "./04/triangle_fourier_n_09.png";
+import fourier39 from "./04/triangle_fourier_n_39.png";
 import { renderPartialDecays } from "./05-partial-decays.ts";
 import partialDecaysSource from "./05-partial-decays.ts?raw";
 import { renderHammered } from "./06-hammer-and-velocity.ts";
@@ -133,10 +137,6 @@ export const stages: SynthStage[] = [
     explanation:
       "Riempiamo un Float32Array con un'ampiezza per campione. A 48 kHz sono 48 000 numeri per ogni secondo di suono. I numeri vengono dall'oscillazione più semplice che esista: una sinusoide a 440 Hz. Passa quell'array alla Web Audio API e diventa un tono.",
     formula: "x(t) = A · sin(2πft),   t = i / sampleRate",
-    listenFor:
-      "Un tono stabile, puro, palesemente artificiale. È un'altezza, ma niente in esso dice 'strumento'. Nota il click alla fine — nulla dice all'onda di fermarsi in modo graduale.",
-    lookFor:
-      "Una sinusoide perfettamente regolare, e uno spettro con esattamente un picco a 440 Hz. Tutto ciò che aggiungeremo da qui in poi è un modo di dare più struttura a questa immagine.",
     parameters: [],
     sourceCode: sineSource,
     sourceFile: "01-sine.ts",
@@ -149,12 +149,8 @@ export const stages: SynthStage[] = [
     shortTitle: "Inviluppo",
     concept: "Il volume ha una forma nel tempo — e quella forma deve essere morbida.",
     explanation:
-      "Accendere e spegnere un'onda di colpo è una discontinuità, e una discontinuità è energia a banda larga: un click. Moltiplichiamo invece l'onda per un inviluppo — un attacco rapido, un decadimento esponenziale come una corda percossa che perde energia, e un breve rilascio che garantisce che il buffer finisca a zero.",
-    formula: "inviluppo(t) = min(t/attacco, 1) · e^(−t/decadimento) · rilascio(t)",
-    listenFor:
-      "Ora la nota ha un inizio e una fine. Smette di comportarsi come un tono di prova lasciato acceso e inizia a comportarsi come qualcosa che è stato percosso. Il click è sparito.",
-    lookFor:
-      "La forma d'onda cresce in pochi millisecondi e poi decade. Ingrandisci a 50 ms per vedere la rampa d'attacco al posto di un fronte verticale.",
+      "L'attacco è l'istante in cui il martelletto percuote la corda: in pochi millisecondi tutta l'energia entra insieme e l'ampiezza sale da zero al massimo. Il decadimento è ciò che segue: la corda, ormai libera di vibrare, disperde la propria energia — nell'aria, nel ponte, nell'attrito interno, svanendo in modo esponenziale. Il rilascio è serve per evitare un click, nella realtà non esiste.",
+    formula: "x(t) = A · sin(2πft) · min(t/attacco, 1) · e^(−t/decadimento) · rilascio(t)",
     parameters: [ATTACK, DECAY],
     sourceCode: envelopeSource,
     sourceFile: "03-envelope.ts",
@@ -165,14 +161,36 @@ export const stages: SynthStage[] = [
     index: 3,
     title: "Sintesi additiva — costruire un timbro",
     shortTitle: "Parziali",
-    concept: "Un timbro è una fondamentale più una pila di parziali.",
+    concept: "Una corda fissata ai due estremi può vibrare solo in certi modi, e ogni modo è una parziale.",
     explanation:
-      "Una singola sinusoide ha altezza e volume ma nessun carattere. Aggiungi sinusoidi a 2×, 3×, 4× … la fondamentale, ciascuna più debole della precedente, e il tono acquista un colore. È l'idea di Fourier al contrario: invece di scomporre un suono, ne componiamo uno.",
+      "Se la forma iniziale della corda fosse perfettamente sinusoidale, avremmo la sola nota. Il martelletto però non piega la corda nella dolce arcata della fondamentale: le imprime una forma spigolosa, con un angolo netto nel punto d'impatto, come un triangolo. Fourier ci spiega che un trinagolo può essere visto come somma di sinusoidi. Da qui le parziali: il vincolo agli estremi decide quali frequenze, la forma del colpo decide quanto pesa ciascuna, e ciò che senti è la loro somma.",
     formula: "x(t) = Σₙ aₙ · sin(2π · n·f₀ · t)",
-    listenFor:
-      "Trascina il numero di parziali da 1 a 12. A 1 è la sinusoide della fase 1; a 5 è un tono più brillante e nasale, con corpo. Non è più un fischio — ma è ancora statico.",
-    lookFor:
-      "Lo spettro fa crescere un pettine di picchi a 440, 880, 1320, 1760, 2200 Hz. La forma d'onda è ancora perfettamente periodica, solo non più una sinusoide.",
+    gallery: {
+      buttonLabel: "Vedi: sommando sinusoidi si ricostruisce il triangolo",
+      title: "Serie di Fourier di un'onda triangolare",
+      images: [
+        {
+          src: fourier1,
+          caption:
+            "Una sola sinusoide — la fondamentale. Morbida e arrotondata, ancora lontanissima dagli spigoli del triangolo.",
+        },
+        {
+          src: fourier3,
+          caption:
+            "3 armoniche sommate: la curva inizia a piegarsi verso la forma triangolare, ma gli angoli sono ancora smussati.",
+        },
+        {
+          src: fourier9,
+          caption:
+            "9 armoniche: ormai è chiaramente un triangolo. Ogni parziale in più affila gli spigoli e raddrizza i lati.",
+        },
+        {
+          src: fourier39,
+          caption:
+            "39 armoniche: la somma è quasi indistinguibile dal triangolo ideale. È lo stesso principio con cui il colpo, forma spigolosa, eccita molte parziali insieme.",
+        },
+      ],
+    },
     parameters: [PARTIALS, ATTACK, DECAY],
     sourceCode: additiveSource,
     sourceFile: "04-additive-synthesis.ts",
@@ -187,10 +205,6 @@ export const stages: SynthStage[] = [
     explanation:
       "Un solo inviluppo per l'intera nota significa che il timbro non cambia mai: la nota diventa solo più debole. Una corda reale perde la sua energia in alta frequenza molto più in fretta della fondamentale. Quindi eliminiamo il decadimento condiviso e diamo a ogni parziale la sua costante di tempo.",
     formula: "aₙ(t) = aₙ · e^(−t / decadₙ),   decad₁ > decad₂ > … > decadₙ",
-    listenFor:
-      "La nota parte brillante e si scurisce mentre risuona — il passo singolo più importante per suonare come una corda percossa e non come un organo.",
-    lookFor:
-      "Alterna lo spettro tra Iniziale e Finale. I picchi alti sono forti all'inizio della nota e quasi spariti verso la fine, mentre la fondamentale è ancora lì.",
     parameters: [SPECTRAL_DECAY, PARTIALS, ATTACK],
     sourceCode: partialDecaysSource,
     sourceFile: "05-partial-decays.ts",
@@ -203,12 +217,10 @@ export const stages: SynthStage[] = [
     shortTitle: "Martelletto",
     concept: "I primi 25 ms portano con sé l'identità dello strumento.",
     explanation:
-      "Non sono le parziali in regime stazionario a farci riconoscere un pianoforte — è l'attacco. Aggiungiamo un breve scoppio di rumore, modellato da un'esponenziale molto rapida, a rappresentare il feltro che colpisce l'acciaio. Il rumore viene da un PRNG con seme, quindi le stesse impostazioni producono sempre lo stesso buffer. La dinamica smette allora di essere un controllo di volume: i colpi più forti sono più intensi, più percussivi e più brillanti.",
-    formula: "martelletto(t) = rumore(t) · e^(−180t) · dinamica · 0.12,   t < 25 ms",
-    listenFor:
-      "Imposta la dinamica a 0,15, poi a 1,0. La nota forte non è la nota debole col volume alzato: ha più colpo e molto più mordente in alta frequenza.",
-    lookFor:
-      "Ingrandisci la forma d'onda a 50 ms: ora un picco rumoroso precede la parte periodica. Lo spettro iniziale ha un pavimento di alte frequenze più alto.",
+      "Il martelletto che colpisce la corda è un urto meccanico, e come ogni colpo su un oggetto duro produce un breve tonfo: un suono, un miscuglio di tante frequenze senza una nota precisa. È il rumore dell'impatto in sé, distinto dal tono che la corda emette subito dopo. Ed il contatto è brevissimo e netto. Lo modelliamo con un breve scoppio di rumore smorzato da un'esponenziale molto rapida, che rappresenta il feltro che colpisce l'acciaio e svanisce in fretta. La dinamica rappresenta la velocità con la quale avviene l'impatto del martelletto",
+    formula:
+      "martelletto(t) = rumore(t) · e^(−180t) · dinamica · 0.12,   t < 25 ms\n" +
+      "x(t) = ( corde(t) + martelletto(t) ) · dinamica",
     parameters: [HAMMER, PARTIALS, SPECTRAL_DECAY, ATTACK],
     sourceCode: hammerSource,
     sourceFile: "06-hammer-and-velocity.ts",
@@ -221,12 +233,8 @@ export const stages: SynthStage[] = [
     shortTitle: "Inarmonicità",
     concept: "Le corde del pianoforte sono rigide, quindi le loro parziali sono dilatate.",
     explanation:
-      "Finora le nostre parziali sono state multipli interi esatti di f₀ — ciò che farebbe una corda ideale, infinitamente flessibile. La corda reale di un pianoforte resiste alla flessione, e la rigidezza spinge ogni parziale leggermente crescente, tanto più quanto è alta. Il coefficiente B è minuscolo, ed è gran parte del motivo per cui un pianoforte non è un organo.",
+      "Finora le parziali sono state multipli interi esatti di f₀: è ciò che fa una corda ideale, infinitamente flessibile, dove l'unica forza che riporta la corda dritta è la tensione. Ma la corda vera di un pianoforte è un grosso filo d'acciaio: alla tensione si aggiunge una seconda forza di richiamo, la rigidezza propria del metallo. Questa rigidezza resiste alla curvatura, e resiste tanto più quanto la curva è stretta. La fondamentale piega la corda in un solo arco morbido e quasi non la sente; una parziale alta invece costringe la corda in molte pieghe strette e serrate, dove la rigidezza reagisce con forza. Così ogni parziale risulta crescente, e tanto più quanto è alta.",
     formula: "fₙ = n · f₀ · √(1 + B·n²)",
-    listenFor:
-      "A B = 0 il tono è pulito e un po' sintetico. A 0,0004 acquista una tensione sottile. Portalo a 0,01 e diventa metallico, poi simile a una campana — lo stesso codice, uno strumento diverso.",
-    lookFor:
-      "Le guide tratteggiate segnano le armoniche ideali n·440 Hz. I picchi reali vi si posano in fondo allo spettro e si spostano progressivamente alla loro destra man mano che si sale.",
     parameters: [INHARMONICITY, PARTIALS, HAMMER, SPECTRAL_DECAY],
     sourceCode: inharmonicitySource,
     sourceFile: "07-inharmonicity.ts",
@@ -239,12 +247,10 @@ export const stages: SynthStage[] = [
     shortTitle: "Corde",
     concept: "Un tasto, tre corde, mai perfettamente accordate.",
     explanation:
-      "La maggior parte dei tasti del pianoforte percuote tre corde insieme. Sono accordate entro un paio di cent l'una dall'altra — abbastanza vicine da fondersi in un'unica altezza, abbastanza distanti da andare fuori e in fase l'una con l'altra. Quella lenta interferenza è il coro, lo scintillio, la 'vitalità' dello strumento.",
-    formula: "rapporto = 2^(cent / 1200),   battimenti ≈ |f₁ − f₂| Hz",
-    listenFor:
-      "Con una scordatura di 0 la nota è morta e sintetica. A 1× respira. Alza la scordatura e il battimento diventa un'oscillazione udibile, poi un honky-tonk.",
-    lookFor:
-      "Scegli lo zoom dello spettro 'Intorno a f₀': l'unico picco a 440 Hz si separa in un piccolo grappolo di componenti ravvicinate.",
+      "La maggior parte dei tasti del pianoforte percuote tre corde insieme. Sono accordate entro un paio di centesimi di tono l'una dall'altra, abbastanza vicine da fondersi in un'unica altezza, abbastanza distanti da andare fuori e in fase l'una con l'altra (ogni corda porta con sé il suo intero set di parziali). Ogni corda ha: la scordatura è quanto è distante dalla \"vera\" nota; il guadagno è il volume della singola corda (la corda centrale, quella accordata esatta, è tenuta un filo più forte); la fase è il punto da cui parte l'onda della singola corda (se tutte e tre partissero allineate, il primo istante sommerebbe i picchi in un attacco artificiale e sintetico).",
+    formula:
+      "fₙ,ₖ = n · f₀ · 2^(centₖ / 1200) · √(1 + B·n²)\n" +
+      "battimenti della parziale n ≈ |fₙ,ᵢ − fₙ,ⱼ|  (∝ n)",
     parameters: [DETUNE, INHARMONICITY, PARTIALS, HAMMER],
     sourceCode: stringsSource,
     sourceFile: "08-multiple-strings.ts",
@@ -259,10 +265,6 @@ export const stages: SynthStage[] = [
     explanation:
       "Una corda da sola è quasi inudibile. Mette in moto una grande tavola armonica di legno, che ha le proprie risonanze, e la tavola irradia in una stanza, che rimanda riflessioni. Entrambe sono filtri lineari, quindi facciamo passare i campioni della fase 7 attraverso un grafo di normali nodi Web Audio dentro un OfflineAudioContext — biquad per il corpo, un convolver con una risposta all'impulso generata proceduralmente per la stanza — e riotteniamo un semplice buffer che riproduciamo esattamente come nella fase 1.",
     formula: "y = stanza( tavola( corde(t) ) ),  reso offline",
-    listenFor:
-      "Un La4 (A4) di pianoforte riconoscibile. Porta la stanza a 0 e la tavola armonica a 0 per riascoltare le corde nude, poi rialzale: la nota smette di essere un esperimento e inizia a essere uno strumento.",
-    lookFor:
-      "La forma d'onda ora ha una coda che dura oltre le corde. Lo spettro mostra la colorazione del corpo anziché le ampiezze grezze delle parziali.",
     parameters: [SOUNDBOARD, ROOM, DETUNE, INHARMONICITY, HAMMER],
     sourceCode: pianoSource,
     sourceFile: "09-piano.ts",

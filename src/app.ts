@@ -3,9 +3,11 @@ import { analyzeSpectrum, DEFAULT_FFT_SIZE } from "./audio/fft.ts";
 import { noteName } from "./audio/math.ts";
 import { stageById, stages } from "./stages/index.ts";
 import type { RenderResult, RenderSettings, SynthStage } from "./stages/types.ts";
+import { GalleryModal } from "./ui/gallery-modal.ts";
 import { installKeyboardShortcuts } from "./ui/keyboard-shortcuts.ts";
 import { StageNavigation } from "./ui/stage-navigation.ts";
 import { CanvasSurface, PLOT_COLORS } from "./visualizations/canvas.ts";
+import { physicalIllustrations } from "./visualizations/physical-illustration.ts";
 import { drawSpectrum } from "./visualizations/spectrum.ts";
 import type { SpectrumTrace } from "./visualizations/spectrum.ts";
 import { drawWaveform } from "./visualizations/waveform.ts";
@@ -43,6 +45,11 @@ export class App {
   );
 
   private readonly navigation: StageNavigation;
+
+  private readonly gallery = new GalleryModal(
+    element<HTMLDialogElement>("gallery-modal"),
+  );
+  private readonly galleryButton = element<HTMLButtonElement>("gallery-button");
 
   private readonly playButton = element<HTMLButtonElement>("play");
 
@@ -120,6 +127,10 @@ export class App {
     element<HTMLButtonElement>("next-section").addEventListener("click", () =>
       this.goToPage(this.pageIndex + 1),
     );
+    this.galleryButton.addEventListener("click", () => {
+      const gallery = this.stage.gallery;
+      if (gallery) this.gallery.open(gallery);
+    });
   }
 
   // --- state --------------------------------------------------------------
@@ -138,6 +149,7 @@ export class App {
 
     const intro = this.isIntro;
     element("intro").hidden = !intro;
+    element("physical-panel").hidden = intro;
     element("stage-visuals").hidden = intro;
     element("explanation-panel").hidden = intro;
     element("controls-panel").hidden = intro;
@@ -158,12 +170,17 @@ export class App {
     element("stage-counter").textContent =
       `Fase ${stage.index} di ${stages.length}`;
     element("stage-explanation").textContent = stage.explanation;
-    element("stage-listen").textContent = stage.listenFor;
-    element("stage-look").textContent = stage.lookFor;
 
     const formula = element("stage-formula");
     formula.textContent = stage.formula ?? "";
     formula.hidden = !stage.formula;
+
+    this.galleryButton.textContent = stage.gallery?.buttonLabel ?? "";
+    this.galleryButton.hidden = !stage.gallery;
+
+    const illustration = physicalIllustrations[stage.id];
+    element("physical-illustration").innerHTML = illustration?.svg ?? "";
+    element("physical-caption").textContent = illustration?.caption ?? "";
 
     void this.renderPreview();
   }

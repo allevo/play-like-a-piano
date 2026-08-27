@@ -32,6 +32,21 @@ export interface StageParameter {
   hint?: string;
 }
 
+export interface GalleryImage {
+  /** Resolved asset URL (from a Vite image import). */
+  src: string;
+  caption: string;
+}
+
+/** An optional set of images a stage can open in a modal carousel. */
+export interface StageGallery {
+  /** Text on the button that opens the modal. */
+  buttonLabel: string;
+  /** Heading shown inside the modal. */
+  title: string;
+  images: GalleryImage[];
+}
+
 export interface SynthStage {
   id: string;
   /** 1-based position in the talk. */
@@ -41,8 +56,7 @@ export interface SynthStage {
   concept: string;
   explanation: string;
   formula?: string;
-  listenFor: string;
-  lookFor: string;
+  gallery?: StageGallery;
   parameters: StageParameter[];
   /** Raw text of this stage's own module, via `import source from "./x.ts?raw"`. */
   sourceCode: string;

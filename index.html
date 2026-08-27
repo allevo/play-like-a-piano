@@ -47,6 +47,14 @@
           </div>
         </section>
 
+        <figure id="physical-panel" class="panel illustration-panel">
+          <figcaption class="panel-head">
+            <h3>Modello fisico</h3>
+          </figcaption>
+          <div id="physical-illustration" class="illustration"></div>
+          <figcaption id="physical-caption" class="illustration-caption"></figcaption>
+        </figure>
+
         <section id="stage-visuals" class="visuals">
           <figure class="panel plot-panel">
             <figcaption class="panel-head">
@@ -84,10 +92,12 @@
         <div class="explanation-main">
           <p id="stage-explanation"></p>
           <p id="stage-formula" class="formula"></p>
-        </div>
-        <div class="explanation-cues">
-          <p><span class="cue-label">Ascolta</span><span id="stage-listen"></span></p>
-          <p><span class="cue-label">Osserva</span><span id="stage-look"></span></p>
+          <button
+            id="gallery-button"
+            type="button"
+            class="button gallery-open"
+            hidden
+          ></button>
         </div>
       </section>
 
@@ -99,6 +109,7 @@
         </div>
       </section>
     </div>
+    <dialog id="gallery-modal"></dialog>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

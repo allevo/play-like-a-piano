@@ -16,6 +16,10 @@ export function installKeyboardShortcuts(handlers: ShortcutHandlers): void {
   window.addEventListener("keydown", (event) => {
     if (event.metaKey || event.ctrlKey || event.altKey) return;
 
+    // A modal (the image carousel) owns the keyboard while it is open: it has
+    // its own arrow handling and Esc-to-close, and Space must not fire a note.
+    if (document.querySelector("dialog[open]")) return;
+
     const editing = isEditing(event.target);
 
     // Space must work everywhere, but it would otherwise also "click" whatever
