@@ -81,6 +81,7 @@ src/
 
   ui/                      navigazione, carosello di immagini, scorciatoie
   visualizations/          superficie canvas, forma d'onda, spettro
+    assets/                le sole immagini non generate: la tavola di Chladni
   tests/                   vitest
 ```
 
@@ -135,7 +136,10 @@ parla il talk. Il punto è tutto qui: la nota di pianoforte è un ciclo `for` su
 
 La fase 8 usa dei nodi Web Audio — filtri biquad e un convolver — perché una
 tavola armonica e una stanza *sono* davvero filtri lineari, e riscrivere un
-biquad a mano non insegnerebbe nulla di nuovo. Girano dentro un
+biquad a mano non insegnerebbe nulla di nuovo. È anche l'unica fase con tre
+popup esplicativi (`src/visualizations/piano-galleries.ts`): perché una corda
+nuda non riesce a irradiare, come si svolge una convoluzione discreta passo per
+passo, e cosa sono fisicamente `x` e `h`. Girano dentro un
 `OfflineAudioContext`, che rende il grafo in un `AudioBuffer`, così la
 riproduzione resta semplice come nella fase 1.
 

@@ -1,3 +1,4 @@
+import { isDrawing } from "../stages/types.ts";
 import type { StageGallery } from "../stages/types.ts";
 
 /**
@@ -8,7 +9,7 @@ import type { StageGallery } from "../stages/types.ts";
 export class GalleryModal {
   private readonly dialog: HTMLDialogElement;
   private readonly titleEl: HTMLElement;
-  private readonly imageEl: HTMLImageElement;
+  private readonly figureEl: HTMLElement;
   private readonly captionEl: HTMLElement;
   private readonly counterEl: HTMLElement;
   private readonly dotsEl: HTMLElement;
@@ -28,7 +29,7 @@ export class GalleryModal {
       `</div>` +
       `<div class="gallery-stage">` +
       `<button type="button" class="gallery-arrow gallery-prev" aria-label="Immagine precedente">‹</button>` +
-      `<img class="gallery-image" alt="" />` +
+      `<div class="gallery-figure"></div>` +
       `<button type="button" class="gallery-arrow gallery-next" aria-label="Immagine successiva">›</button>` +
       `</div>` +
       `<p class="gallery-caption"></p>` +
@@ -38,7 +39,7 @@ export class GalleryModal {
       `</div>`;
 
     this.titleEl = this.query(".gallery-title");
-    this.imageEl = this.query<HTMLImageElement>(".gallery-image");
+    this.figureEl = this.query(".gallery-figure");
     this.captionEl = this.query(".gallery-caption");
     this.counterEl = this.query(".gallery-counter");
     this.dotsEl = this.query(".gallery-dots");
@@ -100,7 +101,16 @@ export class GalleryModal {
     if (!image) return;
     this.current = index;
 
-    this.imageEl.src = image.src;
+    // Two kinds of slide: hand-written markup from ../visualizations, or a
+    // bitmap imported by Vite. The bitmaps want a white mat behind them, the
+    // drawings are already in the app's palette and must not get one.
+    if (isDrawing(image)) {
+      this.figureEl.innerHTML = image.svg;
+    } else {
+      this.figureEl.innerHTML = `<img class="gallery-image" alt="" />`;
+      this.query<HTMLImageElement>(".gallery-image").src = image.src;
+    }
+
     this.captionEl.textContent = image.caption;
     this.counterEl.textContent = `${index + 1} / ${this.images.length}`;
 

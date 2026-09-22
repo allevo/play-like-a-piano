@@ -50,7 +50,7 @@ export class App {
   private readonly gallery = new GalleryModal(
     element<HTMLDialogElement>("gallery-modal"),
   );
-  private readonly galleryButton = element<HTMLButtonElement>("gallery-button");
+  private readonly galleryButtons = element("gallery-buttons");
 
   private readonly playButton = element<HTMLButtonElement>("play");
   private readonly spectrumPanel = element("spectrum-panel");
@@ -135,10 +135,6 @@ export class App {
     element<HTMLButtonElement>("next-section").addEventListener("click", () =>
       this.goToPage(this.pageIndex + 1),
     );
-    this.galleryButton.addEventListener("click", () => {
-      const gallery = this.stage.gallery;
-      if (gallery) this.gallery.open(gallery);
-    });
   }
 
   // --- state --------------------------------------------------------------
@@ -184,8 +180,20 @@ export class App {
     formula.textContent = stage.formula ?? "";
     formula.hidden = !stage.formula;
 
-    this.galleryButton.textContent = stage.gallery?.buttonLabel ?? "";
-    this.galleryButton.hidden = !stage.gallery;
+    // One button per carousel, so a stage can offer several explainers and the
+    // presenter opens the one that fits the moment.
+    const galleries = stage.galleries ?? [];
+    this.galleryButtons.hidden = galleries.length === 0;
+    this.galleryButtons.replaceChildren(
+      ...galleries.map((gallery) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "button gallery-open";
+        button.textContent = gallery.buttonLabel;
+        button.addEventListener("click", () => this.gallery.open(gallery));
+        return button;
+      }),
+    );
 
     // The melody page has its own two buttons; "Suona A4" would be a lie there.
     const melody = stage.id === "fur-elise";

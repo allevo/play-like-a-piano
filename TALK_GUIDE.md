@@ -256,6 +256,18 @@ che risponde. Entrambe sono filtri lineari — quindi è l'unico punto in cui us
 volentieri i nodi Web Audio invece di scrivere la matematica a mano. Qui niente
 è in tempo reale e niente è un AudioWorklet."
 
+**Mostra.** Tre popup, nell'ordine in cui servono. **«Perché la corda da sola
+non basta»** prima di toccare gli slider: la corda è centinaia di volte più
+sottile della lunghezza d'onda e l'aria le gira intorno; una superficie grande
+invece non si può aggirare; e l'ultima slide mostra il legno che vibra a zone —
+sono le figure di Chladni, ed è da lì che nasce il timbro dello strumento. **«La convoluzione, un passo
+alla volta»** quando dici "filtri lineari": nove slide che partono dalla formula
+con l'integrale, la riscrivono nel discreto, e poi srotolano l'esempio numerico
+`x = [2, 0, 1]`, `h = [1, 0.5, 0.25]` — una riga della tabella per volta, ogni
+riga una copia di `h` spostata, e il carosello fa da animazione. **«Chi sono x e h»** se qualcuno chiede cosa siano
+davvero i due simboli: una forza sul ponte in newton, e un colpo sul ponte
+registrato con un microfono.
+
 **Cambia.** **Riverbero stanza** a 0 e **Tavola armonica** a 0 — le corde nude.
 Poi rialzale.
 

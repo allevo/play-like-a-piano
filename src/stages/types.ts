@@ -32,10 +32,24 @@ export interface StageParameter {
   hint?: string;
 }
 
-export interface GalleryImage {
+/** A slide drawn from a bitmap asset: a Vite image import. */
+export interface GalleryPicture {
   /** Resolved asset URL (from a Vite image import). */
   src: string;
   caption: string;
+}
+
+/** A slide drawn as inline markup, from ../visualizations. */
+export interface GalleryDrawing {
+  /** Inline <svg> markup, safe to assign via innerHTML. */
+  svg: string;
+  caption: string;
+}
+
+export type GalleryImage = GalleryPicture | GalleryDrawing;
+
+export function isDrawing(image: GalleryImage): image is GalleryDrawing {
+  return "svg" in image;
 }
 
 /** An optional set of images a stage can open in a modal carousel. */
@@ -56,7 +70,8 @@ export interface SynthStage {
   concept: string;
   explanation: string;
   formula?: string;
-  gallery?: StageGallery;
+  /** Modal carousels this stage can open, one button each. */
+  galleries?: StageGallery[];
   /** A melody's spectrum would mix unrelated notes, so it can opt out. */
   showSpectrum?: boolean;
   parameters: StageParameter[];

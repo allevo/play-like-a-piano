@@ -344,9 +344,17 @@ body {
   white-space: pre-line;
 }
 
-.gallery-open {
+.gallery-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--space-2);
   margin-top: var(--space-2);
+}
+
+.gallery-open {
   align-self: start;
+  text-align: left;
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;
@@ -364,8 +372,8 @@ body {
 /* --- gallery modal ------------------------------------------------------- */
 
 .gallery-modal {
-  width: min(760px, 92vw);
-  max-width: 92vw;
+  width: min(980px, 94vw);
+  max-width: 94vw;
   padding: 0;
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -405,13 +413,28 @@ body {
   padding: var(--space-4);
 }
 
-.gallery-image {
+.gallery-figure {
   flex: 1;
   min-width: 0;
-  max-height: 56vh;
+  display: flex;
+  justify-content: center;
+}
+
+.gallery-image {
+  width: 100%;
+  /* A portrait scan is height-bound, so give it the room a tall screen has —
+     but never more than the window can hold once the dialog's own chrome
+     (head, caption, footer: ~210px) is accounted for. */
+  max-height: min(70vh, calc(100vh - 250px));
   object-fit: contain;
   background: #ffffff;
   border-radius: 6px;
+}
+
+/* Drawings are already in the app palette: no white mat, just room to breathe. */
+.gallery-svg {
+  width: 100%;
+  max-height: 56vh;
 }
 
 .gallery-arrow {

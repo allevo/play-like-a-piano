@@ -20,6 +20,7 @@ import { renderPiano } from "./09-piano.ts";
 import pianoSource from "./09-piano.ts?raw";
 import { renderFurElisePiano } from "./10-fur-elise.ts";
 import furEliseSource from "./10-fur-elise.ts?raw";
+import { pianoGalleries } from "../visualizations/piano-galleries.ts";
 import type { StageParameter, SynthStage } from "./types.ts";
 
 /**
@@ -167,32 +168,34 @@ export const stages: SynthStage[] = [
     explanation:
       "Se la forma iniziale della corda fosse perfettamente sinusoidale, avremmo la sola nota. Il martelletto però non piega la corda nella dolce arcata della fondamentale: le imprime una forma spigolosa, con un angolo netto nel punto d'impatto, come un triangolo. Fourier ci spiega che un trinagolo può essere visto come somma di sinusoidi. Da qui le parziali: il vincolo agli estremi decide quali frequenze, la forma del colpo decide quanto pesa ciascuna, e ciò che senti è la loro somma.",
     formula: "x(t) = Σₙ aₙ · sin(2π · n·f₀ · t)",
-    gallery: {
-      buttonLabel: "Vedi: sommando sinusoidi si ricostruisce il triangolo",
-      title: "Serie di Fourier di un'onda triangolare",
-      images: [
-        {
-          src: fourier1,
-          caption:
-            "Una sola sinusoide — la fondamentale. Morbida e arrotondata, ancora lontanissima dagli spigoli del triangolo.",
-        },
-        {
-          src: fourier3,
-          caption:
-            "3 armoniche sommate: la curva inizia a piegarsi verso la forma triangolare, ma gli angoli sono ancora smussati.",
-        },
-        {
-          src: fourier9,
-          caption:
-            "9 armoniche: ormai è chiaramente un triangolo. Ogni parziale in più affila gli spigoli e raddrizza i lati.",
-        },
-        {
-          src: fourier39,
-          caption:
-            "39 armoniche: la somma è quasi indistinguibile dal triangolo ideale. È lo stesso principio con cui il colpo, forma spigolosa, eccita molte parziali insieme.",
-        },
-      ],
-    },
+    galleries: [
+      {
+        buttonLabel: "Vedi: sommando sinusoidi si ricostruisce il triangolo",
+        title: "Serie di Fourier di un'onda triangolare",
+        images: [
+          {
+            src: fourier1,
+            caption:
+              "Una sola sinusoide — la fondamentale. Morbida e arrotondata, ancora lontanissima dagli spigoli del triangolo.",
+          },
+          {
+            src: fourier3,
+            caption:
+              "3 armoniche sommate: la curva inizia a piegarsi verso la forma triangolare, ma gli angoli sono ancora smussati.",
+          },
+          {
+            src: fourier9,
+            caption:
+              "9 armoniche: ormai è chiaramente un triangolo. Ogni parziale in più affila gli spigoli e raddrizza i lati.",
+          },
+          {
+            src: fourier39,
+            caption:
+              "39 armoniche: la somma è quasi indistinguibile dal triangolo ideale. È lo stesso principio con cui il colpo, forma spigolosa, eccita molte parziali insieme.",
+          },
+        ],
+      },
+    ],
     parameters: [PARTIALS, ATTACK, DECAY],
     sourceCode: additiveSource,
     sourceFile: "04-additive-synthesis.ts",
@@ -267,6 +270,7 @@ export const stages: SynthStage[] = [
     explanation:
       "Una corda da sola è quasi inudibile. Mette in moto una grande tavola armonica di legno, che ha le proprie risonanze, e la tavola irradia in una stanza, che rimanda riflessioni. Entrambe sono filtri lineari, quindi facciamo passare i campioni della fase 7 attraverso un grafo di normali nodi Web Audio dentro un OfflineAudioContext — biquad per il corpo, un convolver con una risposta all'impulso generata proceduralmente per la stanza — e riotteniamo un semplice buffer che riproduciamo esattamente come nella fase 1.",
     formula: "y = stanza( tavola( corde(t) ) ),  reso offline",
+    galleries: pianoGalleries,
     parameters: [SOUNDBOARD, ROOM, DETUNE, INHARMONICITY, HAMMER],
     sourceCode: pianoSource,
     sourceFile: "09-piano.ts",
