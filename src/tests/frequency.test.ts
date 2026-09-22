@@ -3,10 +3,12 @@ import {
   A4_FREQUENCY,
   centsToRatio,
   frequencyFromA4,
+  frequencyOfNote,
   noteName,
   partialFrequency,
   semitonesToRatio,
 } from "../audio/math.ts";
+import { furElise } from "../stages/10-fur-elise.ts";
 
 describe("frequency math", () => {
   it("anchors A4 at 440 Hz", () => {
@@ -33,6 +35,36 @@ describe("frequency math", () => {
     expect(noteName(440)).toBe("A4");
     expect(noteName(880)).toBe("A5");
     expect(noteName(261.63)).toBe("C4");
+  });
+});
+
+describe("note names", () => {
+  it("turns a written pitch back into a frequency", () => {
+    expect(frequencyOfNote("A4")).toBeCloseTo(440, 9);
+    expect(frequencyOfNote("A3")).toBeCloseTo(220, 9);
+    expect(frequencyOfNote("C4")).toBeCloseTo(261.626, 3);
+    expect(frequencyOfNote("E5")).toBeCloseTo(659.255, 3);
+    expect(frequencyOfNote("D#5")).toBeCloseTo(622.254, 3);
+    expect(frequencyOfNote("G#4")).toBeCloseTo(415.305, 3);
+  });
+
+  it("round-trips every note of the melody through noteName", () => {
+    for (const { note } of furElise) {
+      expect(noteName(frequencyOfNote(note))).toBe(note);
+    }
+  });
+
+  it("applies the accidental after the letter, not to the octave", () => {
+    expect(frequencyOfNote("Bb4")).toBeCloseTo(frequencyOfNote("A#4"), 9);
+    // The two spellings that cross an octave boundary.
+    expect(frequencyOfNote("Cb4")).toBeCloseTo(frequencyOfNote("B3"), 9);
+    expect(frequencyOfNote("B#4")).toBeCloseTo(frequencyOfNote("C5"), 9);
+  });
+
+  it("rejects anything that is not a pitch", () => {
+    for (const bad of ["", "H4", "A", "4A", "A#", "A4x", "A 4"]) {
+      expect(() => frequencyOfNote(bad)).toThrow();
+    }
   });
 });
 

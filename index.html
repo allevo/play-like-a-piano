@@ -17,7 +17,7 @@
           <h2 id="stage-title">Onda sinusoidale pura</h2>
           <p id="stage-concept" class="stage-concept"></p>
         </div>
-        <p id="stage-counter" class="stage-counter">Fase 1 di 9</p>
+        <p id="stage-counter" class="stage-counter">Introduzione</p>
       </header>
 
       <div class="nav-row">
@@ -43,6 +43,21 @@
             </button>
             <button id="play-piano" type="button" class="button primary">
               Suona pianoforte
+            </button>
+          </div>
+        </section>
+
+        <section id="melody" class="intro" aria-label="Melodia" hidden>
+          <p class="intro-lead">
+            La stessa partitura, gli stessi numeri di frequenza. L'unica cosa
+            che cambia è l'algoritmo che li trasforma in campioni.
+          </p>
+          <div class="intro-actions">
+            <button id="play-melody-sine" type="button" class="button primary">
+              Suona con la sinusoide
+            </button>
+            <button id="play-melody-piano" type="button" class="button primary">
+              Suona con il pianoforte
             </button>
           </div>
         </section>
@@ -75,7 +90,7 @@
             <canvas id="waveform-canvas"></canvas>
           </figure>
 
-          <figure class="panel plot-panel">
+          <figure id="spectrum-panel" class="panel plot-panel">
             <figcaption class="panel-head">
               <h3>Spettro di frequenza</h3>
             </figcaption>

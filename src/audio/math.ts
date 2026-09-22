@@ -63,6 +63,32 @@ export function noteName(frequency: number): string {
   return `${NOTE_NAMES[index]}${octave}`;
 }
 
+/** Semitone offset from A4 for a natural letter in a given octave. */
+function naturalSemitones(letterIndex: number, octave: number): number {
+  // The mirror of noteName's anchoring: octave numbers change at C, three
+  // semitones above A, so an octave's block of twelve starts at 12·(o − 4) − 9.
+  return 12 * (octave - 4) - 9 + ((((letterIndex - 3) % 12) + 12) % 12);
+}
+
+/**
+ * Frequency of a note written in scientific pitch notation: "E5" -> 659.26.
+ *
+ * The inverse of noteName. The accidental is applied after the natural letter,
+ * so the awkward spellings land where a musician expects: Cb4 is B3, B#4 is C5.
+ */
+export function frequencyOfNote(name: string): number {
+  const match = /^([A-Ga-g])([#b]?)(-?\d+)$/.exec(name.trim());
+  if (!match) throw new Error(`Nome di nota non valido: "${name}"`);
+
+  const [, letter, accidental, octave] = match;
+  const letterIndex = NOTE_NAMES.indexOf(letter.toUpperCase());
+  const semitones =
+    naturalSemitones(letterIndex, Number(octave)) +
+    (accidental === "#" ? 1 : accidental === "b" ? -1 : 0);
+
+  return frequencyFromA4(semitones);
+}
+
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }

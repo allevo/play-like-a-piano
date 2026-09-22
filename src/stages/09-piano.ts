@@ -9,7 +9,7 @@ import { synthesizeStrings } from "./08-multiple-strings.ts";
 import { parameter } from "./types.ts";
 import type { RenderResult, RenderSettings } from "./types.ts";
 
-const ROOM_TAIL_SECONDS = 1.2;
+export const ROOM_TAIL_SECONDS = 1.2;
 
 function peaking(
   context: OfflineAudioContext,
@@ -48,7 +48,7 @@ function createRoomImpulse(context: OfflineAudioContext): AudioBuffer {
   return impulse;
 }
 
-function buildPianoBody(
+export function buildPianoBody(
   context: OfflineAudioContext,
   dry: AudioBuffer,
   soundboard: number,

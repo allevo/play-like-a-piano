@@ -18,6 +18,8 @@ import { renderStrings } from "./08-multiple-strings.ts";
 import stringsSource from "./08-multiple-strings.ts?raw";
 import { renderPiano } from "./09-piano.ts";
 import pianoSource from "./09-piano.ts?raw";
+import { renderFurElisePiano } from "./10-fur-elise.ts";
+import furEliseSource from "./10-fur-elise.ts?raw";
 import type { StageParameter, SynthStage } from "./types.ts";
 
 /**
@@ -269,6 +271,21 @@ export const stages: SynthStage[] = [
     sourceCode: pianoSource,
     sourceFile: "09-piano.ts",
     render: renderPiano,
+  },
+  {
+    id: "fur-elise",
+    index: 9,
+    title: "Für Elise — la melodia",
+    shortTitle: "Für Elise",
+    concept: "Una melodia è un elenco di note e di istanti; suonarla è una somma.",
+    explanation:
+      "Non serve niente di nuovo. Ogni nota della partitura viene resa con la stessa identica funzione delle fasi precedenti — le cambia solo la frequenza — e finisce sommata dentro un unico buffer lungo, all'istante che le spetta. È tutto qui il concetto di polifonia: un'addizione, campione per campione. Ogni nota viene resa più lunga di quanto è scritta, così la sua coda continua a suonare sotto quella dopo: è questo che si sente come legato. Il corpo del pianoforte, invece, si applica una volta sola sull'intero brano — perché un pianoforte ha una tavola armonica sola e sta in una stanza sola.",
+    formula: "x(t) = Σₖ notaₖ(t − tₖ)",
+    showSpectrum: false,
+    parameters: [],
+    sourceCode: furEliseSource,
+    sourceFile: "10-fur-elise.ts",
+    render: renderFurElisePiano,
   },
 ];
 

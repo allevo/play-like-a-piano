@@ -2,6 +2,7 @@ import { AudioEngine } from "./audio/audio-engine.ts";
 import { analyzeSpectrum, DEFAULT_FFT_SIZE } from "./audio/fft.ts";
 import { noteName } from "./audio/math.ts";
 import { stageById, stages } from "./stages/index.ts";
+import { renderFurEliseSine } from "./stages/10-fur-elise.ts";
 import type { RenderResult, RenderSettings, SynthStage } from "./stages/types.ts";
 import { GalleryModal } from "./ui/gallery-modal.ts";
 import { installKeyboardShortcuts } from "./ui/keyboard-shortcuts.ts";
@@ -52,6 +53,7 @@ export class App {
   private readonly galleryButton = element<HTMLButtonElement>("gallery-button");
 
   private readonly playButton = element<HTMLButtonElement>("play");
+  private readonly spectrumPanel = element("spectrum-panel");
 
   constructor() {
     for (const stage of stages) {
@@ -124,6 +126,12 @@ export class App {
     element<HTMLButtonElement>("play-piano").addEventListener("click", () =>
       void this.playStage("piano"),
     );
+    element<HTMLButtonElement>("play-melody-sine").addEventListener("click", () =>
+      void this.playRendered(renderFurEliseSine),
+    );
+    element<HTMLButtonElement>("play-melody-piano").addEventListener("click", () =>
+      void this.playCurrentStage(),
+    );
     element<HTMLButtonElement>("next-section").addEventListener("click", () =>
       this.goToPage(this.pageIndex + 1),
     );
@@ -149,12 +157,13 @@ export class App {
 
     const intro = this.isIntro;
     element("intro").hidden = !intro;
-    element("physical-panel").hidden = intro;
     element("stage-visuals").hidden = intro;
     element("explanation-panel").hidden = intro;
-    element("controls-panel").hidden = intro;
 
     if (intro) {
+      element("melody").hidden = true;
+      element("physical-panel").hidden = true;
+      element("controls-panel").hidden = true;
       element("stage-title").textContent = "Introduzione";
       element("stage-concept").textContent =
         "Dai numeri grezzi al suono di un pianoforte.";
@@ -178,7 +187,15 @@ export class App {
     this.galleryButton.textContent = stage.gallery?.buttonLabel ?? "";
     this.galleryButton.hidden = !stage.gallery;
 
+    // The melody page has its own two buttons; "Suona A4" would be a lie there.
+    const melody = stage.id === "fur-elise";
+    element("melody").hidden = !melody;
+    element("controls-panel").hidden = melody;
+
+    this.spectrumPanel.hidden = stage.showSpectrum === false;
+
     const illustration = physicalIllustrations[stage.id];
+    element("physical-panel").hidden = !illustration;
     element("physical-illustration").innerHTML = illustration?.svg ?? "";
     element("physical-caption").textContent = illustration?.caption ?? "";
 
@@ -202,6 +219,11 @@ export class App {
   private async renderPreview(): Promise<RenderResult | null> {
     const sampleRate = this.engine.sampleRate;
     const token = ++this.renderToken;
+
+    // Rendering a whole melody blocks the main thread for a second or two. Let
+    // the browser paint the new page first, so navigating never feels stuck.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    if (token !== this.renderToken) return null;
 
     try {
       const result = await this.stage.render(this.settings(sampleRate));
@@ -229,6 +251,14 @@ export class App {
     // The intro page has its own two buttons; there is no single note to toggle.
     if (this.isIntro) return;
 
+    await this.playCurrentStage();
+  }
+
+  /** Play what this page already rendered for its graphs, so a click never pays
+   *  for the render twice — which matters most for the melody. */
+  private async playCurrentStage(): Promise<void> {
+    if (this.isIntro) return;
+
     // The AudioContext may only be created and resumed inside a user gesture.
     await this.engine.ensureContext();
 
@@ -245,14 +275,19 @@ export class App {
   /** Play a specific stage by id — used by the intro page's two buttons. */
   private async playStage(id: string): Promise<void> {
     const stage = stageById(id);
-    if (!stage) return;
+    if (stage) await this.playRendered((settings) => stage.render(settings));
+  }
 
+  /** Render something on demand and play it, off the current page's buffer. */
+  private async playRendered(
+    render: (settings: RenderSettings) => Promise<RenderResult> | RenderResult,
+  ): Promise<void> {
     // The AudioContext may only be created and resumed inside a user gesture.
     await this.engine.ensureContext();
     const sampleRate = this.engine.sampleRate;
 
     try {
-      const result = await stage.render(this.settings(sampleRate));
+      const result = await render(this.settings(sampleRate));
       this.engine.play(result.samples, sampleRate);
     } catch (error) {
       console.error("Rendering fallito:", error);
@@ -272,6 +307,8 @@ export class App {
 
   private drawSpectrum(): void {
     if (!this.result || this.isIntro) return;
+    // A melody's partials come from different notes; the plot would be a mess.
+    if (this.stage.showSpectrum === false) return;
 
     const samples = this.result.samples;
     const sampleRate = this.renderedSampleRate;

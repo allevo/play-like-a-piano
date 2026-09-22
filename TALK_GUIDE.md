@@ -9,9 +9,14 @@ modifica al codice, cosa dire, cosa suonare e cosa indicare.
   audio.
 * Suona la fase 1 una volta durante l'introduzione, così il gesto audio
   richiesto dal browser è già speso e la prima demo *vera* non può inciampare.
-* La nota predefinita è A4 = 440 Hz. Ogni fase suona la stessa nota, quindi
-  l'unica cosa che cambia tra una fase e l'altra è l'algoritmo.
-* `Spazio` suona. `←` `→` si spostano. `R` reimposta una fase che hai stravolto.
+* La nota è sempre A4 = 440 Hz, dalla fase 1 alla fase 8: l'unica cosa che
+  cambia da una fase all'altra è l'algoritmo. Le altre altezze arrivano solo
+  alla fine, nella fase 9.
+* `Spazio` suona. `←` `→` si spostano.
+
+> I blocchi **Cambia.** qui sotto presuppongono il pannello degli slider. La
+> build attuale non lo espone: ogni fase suona con i suoi valori predefiniti.
+> Leggili come "cosa succederebbe se", oppure rimetti gli slider prima del talk.
 
 > Le altezze sono in notazione scientifica anglosassone (A4 = 440 Hz), uno
 > standard internazionale. A = La: se preferisci, in italiano leggile come La3,
@@ -33,7 +38,7 @@ aritmetica.
 
 ---
 
-## Fase 1 — Onda sinusoidale pura — 4 min
+## Fase 1 — Onda sinusoidale pura — 6 min
 
 **Concetto.** Un suono digitale è una sequenza di campioni.
 
@@ -57,30 +62,25 @@ resto del talk serve a dare più struttura a questa immagine."
 
 ---
 
-## Fase 2 — Frequenza e ottave — 3 min
+### Digressione: frequenza e ottave — 2 min
 
-**Concetto.** L'altezza è frequenza. Un'ottava è un fattore due.
+Sta dentro la fase 1, perché non richiede di cambiare una riga di codice: solo
+il numero che passiamo al generatore.
 
 **Formula.** `rapporto = 2^(semitoni / 12)`.
-
-**Modifica al codice.** Niente nel generatore. Solo il numero che gli passiamo.
 
 **Dì.** "220, 440, 880. Stessa nota, tre ottave. L'orecchio percepisce un
 raddoppio come 'la stessa cosa, più in alto' — ecco perché dodici passi uguali
 di radice dodicesima di due è il compromesso su cui ci siamo messi d'accordo
-tutti."
-
-**Fai.** Premi `1`, `2`, `3` in sequenza. Poi trascina **Trasposizione** a `+12`
-e indietro; nota il raddoppio della frequenza.
-
-**Osserva.** Il picco spettrale scorre; la forma d'onda resta invariata.
+tutti. Teniamolo da parte: per otto fasi la nota resterà A4, e questi numeri
+torneranno solo alla fine, quando suoneremo una melodia."
 
 **Non** farti trascinare in una digressione sui sistemi di accordatura. È una
 conversazione da cinque minuti senza fondo.
 
 ---
 
-## Fase 3 — Inviluppo di ampiezza — 5 min
+## Fase 2 — Inviluppo di ampiezza — 5 min
 
 **Concetto.** Il volume ha una forma, e i bordi di quella forma devono essere
 morbidi.
@@ -109,7 +109,7 @@ d'attacco dove prima c'era il fronte verticale.
 
 ---
 
-## Fase 4 — Sintesi additiva — 5 min
+## Fase 3 — Sintesi additiva — 5 min
 
 **Concetto.** Un timbro è una fondamentale più una pila di parziali.
 
@@ -133,7 +133,7 @@ solo più debole, mai più scuro.
 
 ---
 
-## Fase 5 — Decadimenti indipendenti delle parziali — 5 min
+## Fase 4 — Decadimenti indipendenti delle parziali — 5 min
 
 **Concetto.** Lo spettro evolve. Le parziali alte muoiono per prime.
 
@@ -158,7 +158,7 @@ fondamentale sopravvive.
 
 ---
 
-## Fase 6 — Martelletto e dinamica — 6 min
+## Fase 5 — Martelletto e dinamica — 6 min
 
 **Concetto.** I primi 25 ms sono ciò che rende riconoscibile uno strumento.
 
@@ -185,7 +185,7 @@ riporta a 1.
 
 ---
 
-## Fase 7 — Inarmonicità — 5 min
+## Fase 6 — Inarmonicità — 5 min
 
 **Concetto.** Le corde del pianoforte sono rigide, quindi le loro parziali non
 sono multipli esatti.
@@ -213,7 +213,7 @@ parziale.
 
 ---
 
-## Fase 8 — Corde multiple scordate — 5 min
+## Fase 7 — Corde multiple scordate — 5 min
 
 **Concetto.** Un tasto, tre corde, mai perfettamente accordate.
 
@@ -238,13 +238,13 @@ hertz — dillo, e alza la scordatura per renderla visibile.)
 
 ---
 
-## Fase 9 — Tavola armonica e stanza — 6 min
+## Fase 8 — Tavola armonica e stanza — 6 min
 
 **Concetto.** La corda è la sorgente; lo strumento è un corpo in una stanza.
 
 **Formula.** `y = stanza( tavola( corde(t) ) )`, reso offline.
 
-**Modifica al codice.** I campioni della fase 8 entrano in un
+**Modifica al codice.** I campioni della fase 7 entrano in un
 `OfflineAudioContext`: tre filtri peaking e un passa-basso per il corpo, un
 convolver per la stanza. La risposta all'impulso è generata — rumore in
 decadimento dallo stesso PRNG con seme. Ne esce un `AudioBuffer`, e lo
@@ -267,6 +267,40 @@ la colorazione del corpo anziché le ampiezze grezze delle parziali.
 
 ---
 
+## Fase 9 — Für Elise — 5 min
+
+**Concetto.** Una melodia è un elenco di note e di istanti. Suonarla è una
+somma.
+
+**Formula.** `x(t) = Σₖ notaₖ(t − tₖ)`.
+
+**Modifica al codice.** Nessuna sintesi nuova. Ogni nota della partitura viene
+resa con le stesse funzioni di prima — cambia solo `frequency`, con i numeri
+della digressione della fase 1 — e viene sommata dentro un unico buffer lungo
+all'offset di campioni che le spetta. Due dettagli meritano una frase ciascuno:
+lo **smorzatore** (la corda decade in 3,4 s, quindi al rilascio del tasto la
+spegniamo con la rampa della fase 2, altrimenti a questo tempo tutto impasta) e
+il fatto che la **tavola armonica e la stanza girano una volta sola** su tutto
+il brano, non nota per nota.
+
+**Dì.** "Ci siamo lasciati alle spalle una sola nota. Una melodia non richiede
+niente di nuovo: è la stessa funzione, chiamata ventisette volte con ventisette
+frequenze, e le ventisette risposte sommate campione per campione. La polifonia
+è un'addizione. Non c'è nessuno scheduler qui dentro, nessun tempo reale: alla
+fine è ancora un array di numeri, come nella prima riga del talk."
+
+**Suona.** Prima **Suona con la sinusoide**: la melodia si riconosce subito, ma
+è nuda, e a ogni cambio di nota c'è il click della fase 1 — lo stesso difetto,
+tornato a trovarci. Poi **Suona con il pianoforte**.
+
+**Ascolta.** La distanza fra i due bottoni è tutto il talk, in dieci secondi.
+
+**Osserva.** La forma d'onda mostra le ventisette note come ventisette attacchi,
+e la coda dell'ultima che continua molto oltre le altre. Niente spettro qui: le
+parziali verrebbero da note diverse e il grafico non direbbe nulla.
+
+---
+
 ## Chiusura: il confronto rapido — 3 min
 
 Torna alla fase 1 e cammina in avanti, suonando ogni fase una volta. Dì solo
@@ -275,20 +309,20 @@ secondi:
 
 ```text
 1  Sinusoide pura
-2  Ottave
-3  Inviluppo
-4  Armoniche
-5  Decadimento indipendente
-6  Transiente del martelletto + dinamica
-7  Inarmonicità
-8  Corde multiple
-9  Pianoforte finale
+2  Inviluppo
+3  Armoniche
+4  Decadimento indipendente
+5  Transiente del martelletto + dinamica
+6  Inarmonicità
+7  Corde multiple
+8  Pianoforte finale
+9  Für Elise
 ```
 
-Poi chiudi: "Nove passi. Ognuno è una formula che sta su una riga, e un pezzo di
-fisica che puoi spiegare in una frase. Non c'è nessun pianoforte in questo
-programma — solo numeri che concordano con il modo in cui funziona un
-pianoforte."
+Poi chiudi: "Otto passi per una nota, e un nono per farne una melodia. Ognuno è
+una formula che sta su una riga, e un pezzo di fisica che puoi spiegare in una
+frase. Non c'è nessun pianoforte in questo programma — solo numeri che
+concordano con il modo in cui funziona un pianoforte."
 
 ---
 
@@ -297,28 +331,30 @@ pianoforte."
 | Sezione | Minuti |
 | --- | --- |
 | Apertura | 3 |
-| Fase 1 | 4 |
-| Fase 2 | 3 |
+| Fase 1 (con la digressione sulle ottave) | 6 |
+| Fase 2 | 5 |
 | Fase 3 | 5 |
 | Fase 4 | 5 |
-| Fase 5 | 5 |
-| Fase 6 | 6 |
+| Fase 5 | 6 |
+| Fase 6 | 5 |
 | Fase 7 | 5 |
-| Fase 8 | 5 |
-| Fase 9 | 6 |
+| Fase 8 | 6 |
+| Fase 9 | 5 |
 | Confronto rapido + chiusura | 3 |
-| **Totale** | **50 con le domande; ~40 se tieni il ritmo** |
+| **Totale** | **54 con le domande; ~45 se tieni il ritmo** |
 
-Per stare in 35 minuti: accorcia la fase 2 a un minuto, e non mostrare i valori
-estremi degli slider nelle fasi 5 e 8.
+Per stare in 35 minuti: taglia la digressione sulle ottave a un minuto, e nella
+fase 9 suona solo la versione pianoforte.
 
 ## Se qualcosa va storto
 
 * **Nessun suono.** Clicca Suona col mouse — dopo un ricaricamento della pagina
   una pressione di tasto potrebbe non valere come gesto. Verifica il dispositivo
   di uscita.
-* **Una fase suona male.** Premi `R`. Probabilmente hai lasciato uno slider a un
-  valore estremo.
+* **Una fase suona male.** Ricarica la pagina: ogni fase riparte dai suoi
+  valori predefiniti.
 * **Hai perso il segno.** Le linguette delle fasi in alto sono cliccabili.
 * **La scheda è andata in background e l'audio è morto.** Clicca Suona;
   l'AudioContext si riprende da solo.
+* **La fase 9 sembra bloccata quando ci arrivi.** Sta rendendo ventisette note:
+  un paio di secondi, una volta sola. Arrivaci un attimo prima di parlarne.

@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { analyzeSpectrum, dominantFrequency } from "../audio/fft.ts";
 import { DeterministicRandom } from "../audio/deterministic-random.ts";
-import { partialFrequency } from "../audio/math.ts";
+import { frequencyOfNote, partialFrequency } from "../audio/math.ts";
 import { measurePeak, softLimit } from "../audio/safety.ts";
 import { stages } from "../stages/index.ts";
+import { furElise, renderFurEliseSine } from "../stages/10-fur-elise.ts";
 import type { RenderResult, RenderSettings, SynthStage } from "../stages/types.ts";
 
 const SAMPLE_RATE = 48000;
@@ -50,12 +51,12 @@ function highFrequencyEnergy(samples: Float32Array, minHz: number): number {
 }
 
 describe("stage registry", () => {
-  it("has eight stages, numbered and unique", () => {
-    expect(stages).toHaveLength(8);
+  it("has nine stages, numbered and unique", () => {
+    expect(stages).toHaveLength(9);
     expect(stages.map((stage) => stage.index)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8,
+      1, 2, 3, 4, 5, 6, 7, 8, 9,
     ]);
-    expect(new Set(stages.map((stage) => stage.id)).size).toBe(8);
+    expect(new Set(stages.map((stage) => stage.id)).size).toBe(9);
   });
 
   it("shows source that comes from the executing module", () => {
@@ -73,9 +74,11 @@ describe.each(stages.map((stage) => [stage.shortTitle, stage] as const))(
     it("produces the requested number of samples", async () => {
       const { samples } = await render(stage);
       const expected = Math.round(SAMPLE_RATE * DURATION);
-      // Stage 9 appends a room tail; every other stage matches exactly.
+      // The piano appends a room tail, and the melody is as long as its score.
       expect(samples.length).toBeGreaterThanOrEqual(expected);
-      if (stage.id !== "piano") expect(samples.length).toBe(expected);
+      if (stage.id !== "piano" && stage.id !== "fur-elise") {
+        expect(samples.length).toBe(expected);
+      }
     });
 
     it("produces only finite samples", async () => {
@@ -345,5 +348,44 @@ describe("deterministic random", () => {
       expect(value).toBeGreaterThanOrEqual(-1);
       expect(value).toBeLessThan(1);
     }
+  });
+});
+
+describe("stage 9 — Für Elise", () => {
+  const stage = stages[8];
+
+  it("is a single line: one note at a time, in order", () => {
+    for (let i = 1; i < furElise.length; i++) {
+      const previous = furElise[i - 1];
+      expect(furElise[i].at).toBeGreaterThanOrEqual(previous.at + previous.beats);
+    }
+  });
+
+  it("opens on E5", async () => {
+    const { samples } = await render(stage);
+    const spectrum = analyzeSpectrum(samples, 0, SAMPLE_RATE);
+    const error = Math.abs(dominantFrequency(spectrum) - frequencyOfNote("E5"));
+    expect(error).toBeLessThan(spectrum.binHz * 2);
+  });
+
+  it("outlasts a single note, because the score is longer than one", async () => {
+    const { samples } = await render(stage);
+    expect(samples.length / SAMPLE_RATE).toBeGreaterThan(4);
+  });
+
+  it("leaves headroom for the overlapping tails", async () => {
+    // Half a dozen notes ring at once. If the sum were pinned to full scale the
+    // limiter would be flattening the dynamics of the whole piece.
+    const { peak } = await render(stage);
+    expect(peak).toBeLessThan(0.98);
+  });
+
+  it("plays the same score through stage 1's sine", async () => {
+    const sine = renderFurEliseSine(settingsFor(stage));
+    expect(sine.peak).toBeGreaterThan(0.05);
+    expect(sine.peak).toBeLessThanOrEqual(1);
+    // No decay tail, so the sine version stops when the score does.
+    const piano = await render(stage);
+    expect(sine.samples.length).toBeLessThan(piano.samples.length);
   });
 });

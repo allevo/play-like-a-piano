@@ -301,6 +301,16 @@ body {
   min-height: 0;
 }
 
+/* The melody page has neither a physical model nor a spectrum, so the waveform
+   takes the whole width and the whole height instead of a quarter of it. */
+.app-main:has(> #physical-panel[hidden]) > #stage-visuals {
+  grid-column: 1 / -1;
+}
+
+.visuals:has(> #spectrum-panel[hidden]) {
+  grid-template-rows: 1fr;
+}
+
 .plot-panel {
   display: flex;
   flex-direction: column;

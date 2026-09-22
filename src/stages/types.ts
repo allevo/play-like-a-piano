@@ -57,6 +57,8 @@ export interface SynthStage {
   explanation: string;
   formula?: string;
   gallery?: StageGallery;
+  /** A melody's spectrum would mix unrelated notes, so it can opt out. */
+  showSpectrum?: boolean;
   parameters: StageParameter[];
   /** Raw text of this stage's own module, via `import source from "./x.ts?raw"`. */
   sourceCode: string;
