@@ -418,14 +418,14 @@ function discreteFormula(): string {
 
   return slide(
     p.defs +
-    heading("Semplifichiamo per capire: il mondo discreto") +
+    heading("Dal continuo al discreto: come lo calcola davvero il computer") +
     formula("y(t) = ∫ x(τ) · h(t − τ) dτ", 76, 15, DIM) +
     p.arrow(W / 2, 90, W / 2, 116, DIM) +
     formula("y[n] = Σ x[k] · h[n − k]", 146, 22, ACCENT) +
     `<line x1="180" y1="166" x2="460" y2="166" stroke="${BORDER}"/>` +
     mapping +
     footnote([
-      "La semplificazione serve per poter capire e svolgere i calcoli a mano.",
+      "Non è una semplificazione: il computer calcola veramente questa somma, 48 000 volte al secondo.",
     ]),
   );
 }
@@ -572,11 +572,11 @@ function impulseResponse(): string {
 
   return slide(
     p.defs +
-    heading("Il suono della cassa armonica") +
-    label(40, 62, "Se batti le mani in una chiesa, senti un eco.", MUTED, 12) +
+    heading("Il suono della tavola armonica") +
+    label(40, 62, "Se batti le mani in una chiesa, senti un'eco.", MUTED, 12) +
     stems(110, axisY, [1], ACCENT) +
     label(62, axisY + 50, "Se emettiamo un campione solo", DIM, 11) +
-    box(200, axisY - 32, 140, 62, "la cassa", BORDER) +
+    box(200, axisY - 32, 140, 62, "tavola + stanza", BORDER) +
     p.arrow(146, axisY - 4, 194, axisY - 4) +
     p.arrow(346, axisY - 4, 394, axisY - 4) +
     stems(420, axisY, H_IR, HIGHLIGHT) +
@@ -613,7 +613,7 @@ function signalAsImpulses(): string {
     `<text x="60" y="128" fill="${ACCENT}" font-size="16">[2, 0, 1]</text>` +
     `<text x="148" y="128" fill="${MUTED}" font-size="16">=</text>` +
     written +
-    label(40, 212, "Lo possiamo fare perché la cassa è lineare!", INK, 12) +
+    label(40, 212, "", INK, 12) +
     footnote([
     ]),
   );
@@ -648,7 +648,7 @@ function tailLength(): string {
     `font-size="12" text-anchor="middle">la coda</text>` +
     label(endOfOutput + 24, 186, "3 + 3 − 1 = 5", INK, 15) +
     footnote([
-      "L'eco continua per (3 - 1) campioni nonostante l'input sia a 0",
+      "La coda continua per (lunghezza di h) − 1 = 2 campioni, anche quando l'ingresso è finito.",
     ]),
   );
 }
@@ -726,15 +726,14 @@ function measuredResponse(): string {
     label(bridgeX + 22, cy - 60, "martelletto strumentato", HIGHLIGHT, 11) +
     `<path d="M${bridgeX - 16},${cy + 22} L${bridgeX},${cy - 6} L${bridgeX + 16},${cy + 22} z" fill="${MUTED}"/>` +
     label(bridgeX - 18, cy + 40, "ponte", DIM, 11) +
-    label(40, 232, "", DIM, 11) +
     // Microphone in the room.
     `<circle cx="310" cy="${cy}" r="9" fill="none" stroke="${INK}" stroke-width="2"/>` +
     `<line x1="310" y1="${cy + 9}" x2="310" y2="${cy + 30}" stroke="${INK}" stroke-width="2"/>` +
     label(282, cy + 48, "microfono", DIM, 11) +
     `<line x1="370" y1="200" x2="590" y2="200" stroke="${BORDER}"/>` +
     `<path d="M${tail.join(" L")}" fill="none" stroke="${ACCENT}" stroke-width="1.6"/>` +
-    label(370, 96, "h(t) è identificata dalla,", MUTED, 12) +
-    label(370, 114, "caratteristica del legno", MUTED, 12) +
+    label(370, 96, "h(t) è determinata dal legno", MUTED, 12) +
+    label(370, 114, "e dalla stanza in cui suona", MUTED, 12) +
     footnote([
       "h non contiene nessuna nota: è una proprietà del mobile di legno e della stanza, non della musica.",
     ]),
@@ -769,9 +768,9 @@ function pressureAtEar(): string {
     label(boardX - 44, cy + 40, "tavola armonica", ACCENT, 11) +
     head(360, 105, INK, "qui") +
     head(470, 152, HIGHLIGHT, "e qui è già diverso") +
-    label(40, 226, "", INK, 12) +
     footnote([
-      "Se si sposta la testa di mezzo metro, y cambia e quindi cambia anche h, nonostante il pianoforte sia lo stesso.",
+      "Se si sposta la testa di mezzo metro, y cambia perché è cambiata h:",
+      "il pianoforte è lo stesso, è diverso il percorso fino all'orecchio.",
     ]),
   );
 }
@@ -847,7 +846,7 @@ export const pianoGalleries: StageGallery[] = [
       {
         svg: chladniModes(),
         caption:
-          "Sono le figure di Chladni: la piastra vibra ma ha zone in cui è ferma. Li è dove la sabbia si ferma. Non solo le zone cambiano in base alla frequenza, ma anche in base al legno (tipologia, forma, spessore, etc...). In base la legno, certe frequenze sono \"preferite\" rispetto ad altre ed è quella preferenza a fare il timbro dello strumento. Anche se la realtà è più complessa di così, il principio è questo.",
+          "Sono le figure di Chladni: la piastra vibra ma ha zone in cui è ferma. Lì è dove la sabbia si ferma. Non solo le zone cambiano in base alla frequenza, ma anche in base al legno (tipologia, forma, spessore, etc...). In base al legno, certe frequenze sono \"preferite\" rispetto ad altre ed è quella preferenza a fare il timbro dello strumento. Anche se la realtà è più complessa di così, il principio è questo.",
       },
       {
         src: chladniPlate,
@@ -868,7 +867,7 @@ export const pianoGalleries: StageGallery[] = [
       {
         svg: discreteFormula(),
         caption:
-          "La semplificazione è corretta perché un computer \"vive\" nel discreto non nel continuo.",
+          "Il suono campionato è già una lista di numeri, quindi l'integrale diventa una somma senza perdere niente di ciò che l'orecchio sente. Da qui in poi è aritmetica che possiamo fare a mano.",
       },
       {
         svg: impulseResponse(),
@@ -883,7 +882,7 @@ export const pianoGalleries: StageGallery[] = [
       {
         svg: convolutionTable(1, "E ora i calcoli veri:", false),
         caption:
-          "x[0] * h = [2 * 1, 2 * 0.5, 2 * 0.25] = [2, 1, 0.5]. Quindi 2 è l'impulso a istante 0, 1 è l'effetto dell'input a istante 0 a istante 1, 0.5 è l'effetto dell'input a istante 0 a istante 2",
+          "x[0] · h = [2 · 1, 2 · 0.5, 2 · 0.25] = [2, 1, 0.5]. Quindi 2 è l'effetto dell'input a istante 0 sull'istante 0 stesso, 1 è il suo effetto a istante 1, 0.5 è il suo effetto a istante 2.",
       },
       {
         svg: convolutionTable(2, "Il secondo campione è zero", false),
@@ -896,9 +895,9 @@ export const pianoGalleries: StageGallery[] = [
           "x[2] vale 1 e arriva due campioni dopo, quindi la sua copia di h è identica ma appoggiata due colonne più a destra. Invarianza nel tempo: stessa forma, solo spostata.",
       },
       {
-        svg: convolutionTable(3, "L'output finale y(t)", true),
+        svg: convolutionTable(3, "L'output finale y[n]", true),
         caption:
-          "Sommare le colonne dà y = [2, 1, 1,5, 0,5, 0,25]. Questa tabella è la formula di due slide fa: y[n] = Σ x[k]·h[n−k]. Ogni riga è x[k]·h spostata di k, e n−k è solo «quanto tempo fa è successo».",
+          "Sommare le colonne dà y = [2, 1, 1,5, 0,5, 0,25]. Questa tabella è la formula vista all'inizio: y[n] = Σ x[k]·h[n−k]. Ogni riga è x[k]·h spostata di k, e n−k è solo «quanto tempo fa è successo».",
       },
       {
         svg: tailLength(),
