@@ -264,12 +264,14 @@ export const stages: SynthStage[] = [
   {
     id: "piano",
     index: 8,
-    title: "Modello finale del pianoforte — tavola armonica e stanza",
+    title: "La tavola armonica e stanza",
     shortTitle: "Pianoforte",
-    concept: "La corda è una sorgente; lo strumento è un corpo in una stanza.",
+    concept: "La corda non fa suono: fa una forza. A suonare è il corpo nella stanza.",
     explanation:
-      "Una corda da sola è quasi inudibile. Mette in moto una grande tavola armonica di legno, che ha le proprie risonanze, e la tavola irradia in una stanza, che rimanda riflessioni. Entrambe sono filtri lineari, quindi facciamo passare i campioni della fase 7 attraverso un grafo di normali nodi Web Audio dentro un OfflineAudioContext — biquad per il corpo, un convolver con una risposta all'impulso generata proceduralmente per la stanza — e riotteniamo un semplice buffer che riproduciamo esattamente come nella fase 1.",
-    formula: "y = stanza( tavola( corde(t) ) ),  reso offline",
+      "Una corda da sola non riesce a fare suono: è troppo debole. Inoltre, il martelletto, il ponte e la corda stessa non sono \"perfetti\". La convoluzione della tavola armonica con tutto questo è il timbro dello strumento.",
+    formula:
+      "y = x ∗ h\n" +
+      "x = forza delle corde sul ponte,   h = h_tavola ∗ h_stanza",
     galleries: pianoGalleries,
     parameters: [SOUNDBOARD, ROOM, DETUNE, INHARMONICITY, HAMMER],
     sourceCode: pianoSource,
