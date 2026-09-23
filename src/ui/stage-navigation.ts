@@ -1,5 +1,5 @@
 export interface NavPage {
-  /** 0 for the intro page, 1..9 for the synthesis stages. */
+  /** 0 for the intro page, 1..10 for the synthesis stages. */
   index: number;
   shortTitle: string;
 }
@@ -10,7 +10,7 @@ interface Chip {
   title: string;
 }
 
-/** The 0..9 progress strip. Titles of not-yet-reached sections stay hidden so
+/** The 0..10 progress strip. Titles of not-yet-reached sections stay hidden so
  *  the audience gets no preview of what is coming next. */
 export class StageNavigation {
   private readonly chips = new Map<number, Chip>();

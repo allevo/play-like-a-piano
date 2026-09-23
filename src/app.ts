@@ -25,7 +25,7 @@ function element<T extends HTMLElement>(id: string): T {
 export class App {
   private readonly engine = new AudioEngine();
 
-  /** 0 is the intro page; 1..9 select stages[pageIndex - 1]. */
+  /** 0 is the intro page; 1..10 select stages[pageIndex - 1]. */
   private pageIndex = 0;
   private frequency = 440;
   private duration = 2.8;
@@ -132,6 +132,12 @@ export class App {
     element<HTMLButtonElement>("play-melody-piano").addEventListener("click", () =>
       void this.playCurrentStage(),
     );
+    element<HTMLButtonElement>("play-harmony-plain").addEventListener("click", () =>
+      void this.playStage("fur-elise"),
+    );
+    element<HTMLButtonElement>("play-harmony-chords").addEventListener("click", () =>
+      void this.playCurrentStage(),
+    );
     element<HTMLButtonElement>("next-section").addEventListener("click", () =>
       this.goToPage(this.pageIndex + 1),
     );
@@ -158,6 +164,7 @@ export class App {
 
     if (intro) {
       element("melody").hidden = true;
+      element("harmony").hidden = true;
       element("physical-panel").hidden = true;
       element("controls-panel").hidden = true;
       element("stage-title").textContent = "Introduzione";
@@ -174,7 +181,9 @@ export class App {
     element("stage-concept").textContent = stage.concept;
     element("stage-counter").textContent =
       `Fase ${stage.index} di ${stages.length}`;
-    element("stage-explanation").textContent = stage.explanation;
+    const explanation = element("stage-explanation");
+    explanation.textContent = stage.explanation;
+    explanation.hidden = !stage.explanation;
 
     const formula = element("stage-formula");
     formula.textContent = stage.formula ?? "";
@@ -195,10 +204,13 @@ export class App {
       }),
     );
 
-    // The melody page has its own two buttons; "Suona A4" would be a lie there.
+    // The melody pages have their own two buttons; "Suona A4" would be a lie
+    // there.
     const melody = stage.id === "fur-elise";
+    const harmony = stage.id === "fur-elise-chords";
     element("melody").hidden = !melody;
-    element("controls-panel").hidden = melody;
+    element("harmony").hidden = !harmony;
+    element("controls-panel").hidden = melody || harmony;
 
     this.spectrumPanel.hidden = stage.showSpectrum === false;
 

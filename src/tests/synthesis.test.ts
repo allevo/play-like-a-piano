@@ -5,6 +5,7 @@ import { frequencyOfNote, partialFrequency } from "../audio/math.ts";
 import { measurePeak, softLimit } from "../audio/safety.ts";
 import { stages } from "../stages/index.ts";
 import { furElise, renderFurEliseSine } from "../stages/10-fur-elise.ts";
+import { leftHand } from "../stages/11-fur-elise-chords.ts";
 import type { RenderResult, RenderSettings, SynthStage } from "../stages/types.ts";
 
 const SAMPLE_RATE = 48000;
@@ -51,12 +52,12 @@ function highFrequencyEnergy(samples: Float32Array, minHz: number): number {
 }
 
 describe("stage registry", () => {
-  it("has nine stages, numbered and unique", () => {
-    expect(stages).toHaveLength(9);
+  it("has ten stages, numbered and unique", () => {
+    expect(stages).toHaveLength(10);
     expect(stages.map((stage) => stage.index)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
     ]);
-    expect(new Set(stages.map((stage) => stage.id)).size).toBe(9);
+    expect(new Set(stages.map((stage) => stage.id)).size).toBe(10);
   });
 
   it("shows source that comes from the executing module", () => {
@@ -76,7 +77,11 @@ describe.each(stages.map((stage) => [stage.shortTitle, stage] as const))(
       const expected = Math.round(SAMPLE_RATE * DURATION);
       // The piano appends a room tail, and the melody is as long as its score.
       expect(samples.length).toBeGreaterThanOrEqual(expected);
-      if (stage.id !== "piano" && stage.id !== "fur-elise") {
+      if (
+        stage.id !== "piano" &&
+        stage.id !== "fur-elise" &&
+        stage.id !== "fur-elise-chords"
+      ) {
         expect(samples.length).toBe(expected);
       }
     });
@@ -387,5 +392,54 @@ describe("stage 9 — Für Elise", () => {
     // No decay tail, so the sine version stops when the score does.
     const piano = await render(stage);
     expect(sine.samples.length).toBeLessThan(piano.samples.length);
+  });
+});
+
+describe("stage 10 — Für Elise with chords", () => {
+  const stage = stages[9];
+  const melodyStage = stages[8];
+
+  it("strikes notes on the same instant, which stage 9 never does", () => {
+    const onsets = leftHand.map((note) => note.at);
+    // Every chord is three keys down together: twelve notes, four instants.
+    expect(new Set(onsets).size).toBe(4);
+    for (const at of new Set(onsets)) {
+      expect(onsets.filter((other) => other === at)).toHaveLength(3);
+    }
+    // The melody it sits under stays a single line.
+    expect(new Set(furElise.map((note) => note.at)).size).toBe(furElise.length);
+  });
+
+  it("does not make the piece any longer", async () => {
+    const chords = await render(stage);
+    const melody = await render(melodyStage);
+    expect(chords.samples.length).toBe(melody.samples.length);
+  });
+
+  it("adds a bass the melody alone does not have", async () => {
+    // The first chord lands with the melody's A4, eight sixteenths in.
+    const window = Math.round(1.15 * SAMPLE_RATE);
+    const withChords = analyzeSpectrum(
+      (await render(stage)).samples,
+      window,
+      SAMPLE_RATE,
+    );
+    const melodyOnly = analyzeSpectrum(
+      (await render(melodyStage)).samples,
+      window,
+      SAMPLE_RATE,
+    );
+
+    const binOf = (hz: number) => Math.round(hz / withChords.binHz);
+    // A2, the root of the A minor chord, an octave and a half below the tune.
+    const a2 = binOf(frequencyOfNote("A2"));
+    expect(withChords.magnitudesDb[a2]).toBeGreaterThan(
+      melodyOnly.magnitudesDb[a2] + 12,
+    );
+  });
+
+  it("leaves headroom, even with four notes struck at once", async () => {
+    const { peak } = await render(stage);
+    expect(peak).toBeLessThan(0.98);
   });
 });

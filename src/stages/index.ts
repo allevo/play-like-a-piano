@@ -20,6 +20,8 @@ import { renderPiano } from "./09-piano.ts";
 import pianoSource from "./09-piano.ts?raw";
 import { renderFurElisePiano } from "./10-fur-elise.ts";
 import furEliseSource from "./10-fur-elise.ts?raw";
+import { renderFurEliseChords } from "./11-fur-elise-chords.ts";
+import furEliseChordsSource from "./11-fur-elise-chords.ts?raw";
 import { pianoGalleries } from "../visualizations/piano-galleries.ts";
 import type { StageParameter, SynthStage } from "./types.ts";
 
@@ -294,6 +296,19 @@ export const stages: SynthStage[] = [
     sourceCode: furEliseSource,
     sourceFile: "10-fur-elise.ts",
     render: renderFurElisePiano,
+  },
+  {
+    id: "fur-elise-chords",
+    index: 10,
+    title: "Für Elise con gli accordi",
+    shortTitle: "Accordi",
+    concept: "La stessa somma, con lo stesso istante.",
+    explanation: "",
+    showSpectrum: false,
+    parameters: [],
+    sourceCode: furEliseChordsSource,
+    sourceFile: "11-fur-elise-chords.ts",
+    render: renderFurEliseChords,
   },
 ];
 

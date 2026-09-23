@@ -11,7 +11,7 @@ modifica al codice, cosa dire, cosa suonare e cosa indicare.
   richiesto dal browser è già speso e la prima demo *vera* non può inciampare.
 * La nota è sempre A4 = 440 Hz, dalla fase 1 alla fase 8: l'unica cosa che
   cambia da una fase all'altra è l'algoritmo. Le altre altezze arrivano solo
-  alla fine, nella fase 9.
+  alla fine, nelle fasi 9 e 10.
 * `Spazio` suona. `←` `→` si spostano.
 
 > I blocchi **Cambia.** qui sotto presuppongono il pannello degli slider. La
@@ -319,6 +319,26 @@ parziali verrebbero da note diverse e il grafico non direbbe nulla.
 
 ---
 
+## Fase 10 — Für Elise con gli accordi — 2 min
+
+Questa pagina non spiega niente: si ascolta. Non c'è testo sotto il titolo, e
+non serve.
+
+**Suona.** Prima **Suona la melodia sola** — è identica alla fase 9, nota per
+nota. Poi **Suona con gli accordi**.
+
+**Ascolta.** Sotto la stessa melodia entra la mano sinistra: La minore, Mi
+maggiore, La minore. Quattro accordi in tutto, e le battute iniziali restano
+nude apposta.
+
+**Se qualcuno chiede cosa è cambiato nel codice:** niente, nella sintesi. Dodici
+note in più nella partitura, e per la prima volta in tutto il talk alcune hanno
+lo stesso istante di attacco. `renderScore` non sa cosa sia un accordo — somma
+buffer a un offset di campioni, e stavolta l'offset è lo stesso. La polifonia,
+di nuovo, è un'addizione.
+
+---
+
 ## Chiusura: il confronto rapido — 3 min
 
 Torna alla fase 1 e cammina in avanti, suonando ogni fase una volta. Dì solo
@@ -335,9 +355,11 @@ secondi:
 7  Corde multiple
 8  Pianoforte finale
 9  Für Elise
+10 Gli accordi
 ```
 
-Poi chiudi: "Otto passi per una nota, e un nono per farne una melodia. Ognuno è
+Poi chiudi: "Otto passi per una nota, un nono per farne una melodia, un decimo
+per metterci sotto la mano sinistra. Ognuno è
 una formula che sta su una riga, e un pezzo di fisica che puoi spiegare in una
 frase. Non c'è nessun pianoforte in questo programma — solo numeri che
 concordano con il modo in cui funziona un pianoforte."
@@ -358,8 +380,9 @@ concordano con il modo in cui funziona un pianoforte."
 | Fase 7 | 5 |
 | Fase 8 | 6 |
 | Fase 9 | 5 |
+| Fase 10 | 2 |
 | Confronto rapido + chiusura | 3 |
-| **Totale** | **54 con le domande; ~45 se tieni il ritmo** |
+| **Totale** | **56 con le domande; ~47 se tieni il ritmo** |
 
 Per stare in 35 minuti: taglia la digressione sulle ottave a un minuto, e nella
 fase 9 suona solo la versione pianoforte.

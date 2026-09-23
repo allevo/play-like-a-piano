@@ -95,7 +95,7 @@ function mixInto(
  * takes it to zero. Note that it *multiplies*, one note at a time, so it
  * belongs to `x`: the soundboard and the room still convolve the sum, once.
  */
-function renderScore(
+export function renderScore(
   score: ScoreNote[],
   voice: (settings: RenderSettings) => Float32Array,
   damperSeconds: number,
@@ -163,7 +163,7 @@ const DAMPER_SECONDS = 0.5;
 
 /** Half a dozen decaying notes overlap at once, so each goes in quietly enough
  *  that their sum never has to lean on the limiter. */
-const PIANO_NOTE_GAIN = 0.9;
+export const PIANO_NOTE_GAIN = 0.9;
 
 export async function renderFurElisePiano(
   settings: RenderSettings,

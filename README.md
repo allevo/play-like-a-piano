@@ -3,8 +3,9 @@
 Una demo interattiva per un talk tecnico. Parte da un'onda sinusoidale a 440 Hz
 e, in otto passi, la trasforma in una nota di pianoforte sintetizzata e
 riconoscibile — mostrando la forma d'onda che ogni passo genera e il suo
-spettro. La nona e ultima sezione prende quella nota e ci suona l'inizio di
-Für Elise, con la sinusoide della fase 1 e con il pianoforte della fase 8.
+spettro. La nona sezione prende quella nota e ci suona l'inizio di Für Elise,
+con la sinusoide della fase 1 e con il pianoforte della fase 8; la decima e
+ultima rimette la mano sinistra sotto la melodia, in accordi tenuti.
 
 Ogni campione è calcolato dall'applicazione. Non ci sono file audio, né
 registrazioni di un pianoforte reale, né richieste di rete a runtime.
@@ -18,7 +19,7 @@ npm run dev      # http://localhost:5173
 
 ```bash
 npm run build    # tsc + vite build
-npm run test     # vitest (92 test)
+npm run test     # vitest (101 test)
 ```
 
 Richiede un browser moderno con la Web Audio API. Chrome, Firefox, Safari ed
@@ -38,7 +39,7 @@ sempre.
 > (A4 = 440 Hz), uno standard internazionale trattato qui come un simbolo, alla
 > pari di "Hz". A = La, quindi A4 corrisponde al La centrale di riferimento.
 
-## Le nove sezioni
+## Le dieci sezioni
 
 | # | Fase | File | Cosa aggiunge |
 | --- | --- | --- | --- |
@@ -51,6 +52,7 @@ sempre.
 | 7 | Corde | `08-multiple-strings.ts` | Tre corde a un paio di cent di distanza, che battono l'una contro l'altra |
 | 8 | Pianoforte | `09-piano.ts` | Biquad della tavola armonica e una stanza generata, resi offline |
 | 9 | Für Elise | `10-fur-elise.ts` | Una melodia è una somma di note a istanti diversi |
+| 10 | Accordi | `11-fur-elise-chords.ts` | Lo stesso brano con la mano sinistra: note che condividono l'istante |
 
 I file conservano la numerazione originale del talk, che aveva anche una fase
 "Frequenza e ottave" (`02`) poi assorbita nella prima.
@@ -66,7 +68,7 @@ src/
   audio/                   infrastruttura condivisa
     audio-engine.ts        l'unico AudioContext e l'unica sorgente
     audio-buffer.ts        Float32Array <-> AudioBuffer
-    offline-processing.ts  rendering con OfflineAudioContext (fasi 8 e 9)
+    offline-processing.ts  rendering con OfflineAudioContext (fasi 8, 9 e 10)
     deterministic-random.ts  PRNG con seme (mulberry32)
     fft.ts                 FFT radix-2, finestra di Hann, spettri in dB
     math.ts                semitoni, cent, frequenze delle parziali, nomi delle note
@@ -78,6 +80,7 @@ src/
     index.ts               metadati delle fasi + testi di presentazione
     01-sine.ts … 09-piano.ts
     10-fur-elise.ts        la partitura e il mixer che somma le note
+    11-fur-elise-chords.ts la mano sinistra: note che condividono l'istante
 
   ui/                      navigazione, carosello di immagini, scorciatoie
   visualizations/          superficie canvas, forma d'onda, spettro
@@ -177,6 +180,24 @@ Due dettagli non ovvi:
   e della stanza, che girano una volta sola sull'intero brano. Un pianoforte ha
   una tavola armonica sola e sta in una stanza sola — ed è anche l'unico modo
   perché resti veloce: una convoluzione invece di ventisette.
+
+### Gli accordi
+
+La fase 10 non aggiunge neanche quello: `renderScore` non sa cosa sia un
+accordo. Tre note con lo stesso `at` sono tre buffer sommati allo stesso offset
+di campioni — la stessa addizione della fase 9, con l'offset che smette di
+cambiare. La partitura della melodia resta identica e le si affianca `leftHand`,
+dodici note su quattro istanti.
+
+Il dettaglio non ovvio è il picco. `synthesizeStrings` fa partire le sue tre
+corde da fasi fisse e riparte dallo stesso seme di rumore a ogni chiamata:
+finché le note attaccano in istanti diversi — come in tutte le fasi precedenti —
+non si vede, ma quattro note che attaccano sullo *stesso* campione hanno
+transienti identici che si sommano in fase, e il picco cresce quasi
+linearmente invece che come radice di N. Per questo la mano sinistra entra con
+un guadagno suo, più basso, invece di condividere quello della melodia: così la
+melodia della fase 10 è campione per campione quella della fase 9, e l'unica
+differenza che si sente è l'armonia.
 
 ### Determinismo
 
