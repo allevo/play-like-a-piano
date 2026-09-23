@@ -401,13 +401,17 @@ describe("stage 10 — Für Elise with chords", () => {
 
   it("strikes notes on the same instant, which stage 9 never does", () => {
     const onsets = leftHand.map((note) => note.at);
-    // Every chord is three keys down together: twelve notes, four instants.
-    expect(new Set(onsets).size).toBe(4);
+    // Every chord is five keys down together: thirty notes, six instants.
+    expect(new Set(onsets).size).toBe(6);
     for (const at of new Set(onsets)) {
-      expect(onsets.filter((other) => other === at)).toHaveLength(3);
+      expect(onsets.filter((other) => other === at)).toHaveLength(5);
     }
     // The melody it sits under stays a single line.
     expect(new Set(furElise.map((note) => note.at)).size).toBe(furElise.length);
+  });
+
+  it("accompanies the opening too, so the difference is there from the start", () => {
+    expect(leftHand.some((note) => note.at === 0)).toBe(true);
   });
 
   it("does not make the piece any longer", async () => {
@@ -416,30 +420,57 @@ describe("stage 10 — Für Elise with chords", () => {
     expect(chords.samples.length).toBe(melody.samples.length);
   });
 
-  it("adds a bass the melody alone does not have", async () => {
-    // The first chord lands with the melody's A4, eight sixteenths in.
-    const window = Math.round(1.15 * SAMPLE_RATE);
+  it("fills the register between the bass and the tune", async () => {
+    // From the very first sample: the opening is accompanied too.
     const withChords = analyzeSpectrum(
       (await render(stage)).samples,
-      window,
+      0,
       SAMPLE_RATE,
     );
     const melodyOnly = analyzeSpectrum(
       (await render(melodyStage)).samples,
-      window,
+      0,
       SAMPLE_RATE,
     );
 
     const binOf = (hz: number) => Math.round(hz / withChords.binHz);
-    // A2, the root of the A minor chord, an octave and a half below the tune.
-    const a2 = binOf(frequencyOfNote("A2"));
-    expect(withChords.magnitudesDb[a2]).toBeGreaterThan(
-      melodyOnly.magnitudesDb[a2] + 12,
-    );
+    const louderBy = (hz: number) =>
+      withChords.magnitudesDb[binOf(hz)] - melodyOnly.magnitudesDb[binOf(hz)];
+
+    // The low root carries the weight, but a low note alone is nearly all
+    // fundamental: the voicing reaches up to E4 so the chord has a middle too.
+    for (const note of ["A2", "E3", "A3", "C4", "E4"]) {
+      expect(louderBy(frequencyOfNote(note))).toBeGreaterThan(12);
+    }
   });
 
-  it("leaves headroom, even with four notes struck at once", async () => {
-    const { peak } = await render(stage);
-    expect(peak).toBeLessThan(0.98);
+  it("is audibly fuller, not merely louder", async () => {
+    const rms = (samples: Float32Array) => {
+      let sum = 0;
+      for (let i = 0; i < samples.length; i++) sum += samples[i] * samples[i];
+      return Math.sqrt(sum / samples.length);
+    };
+
+    const chords = rms((await render(stage)).samples);
+    const melody = rms((await render(melodyStage)).samples);
+    const louder = 20 * Math.log10(chords / melody);
+    // Enough to hear, not so much that the comparison is just a level jump.
+    expect(louder).toBeGreaterThan(2);
+    expect(louder).toBeLessThan(6);
+  });
+
+  it("leans on the limiter, but only just", async () => {
+    // Five notes on one sample cost headroom: a chord is consonant because its
+    // notes share partials, and shared partials starting at the same fixed
+    // phase add in full. So the peak sits at the limiter's ceiling and the
+    // number worth guarding is how much of the piece it actually shapes.
+    const { samples, peak } = await render(stage);
+    expect(peak).toBeLessThanOrEqual(1);
+
+    let shaped = 0;
+    for (let i = 0; i < samples.length; i++) {
+      if (Math.abs(samples[i]) > 0.7) shaped++;
+    }
+    expect(shaped / samples.length).toBeLessThan(0.04);
   });
 });

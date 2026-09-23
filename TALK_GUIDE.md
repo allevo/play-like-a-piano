@@ -327,11 +327,12 @@ non serve.
 **Suona.** Prima **Suona la melodia sola** — è identica alla fase 9, nota per
 nota. Poi **Suona con gli accordi**.
 
-**Ascolta.** Sotto la stessa melodia entra la mano sinistra: La minore, Mi
-maggiore, La minore. Quattro accordi in tutto, e le battute iniziali restano
-nude apposta.
+**Ascolta.** Sotto la stessa melodia entra la mano sinistra, fin dalla prima
+nota: La minore, Mi maggiore, La minore. Sei accordi da cinque note, che coprono
+due ottave — e l'ampiezza serve, perché un accordo di sole note gravi qui non
+avrebbe corpo: con otto parziali, un A2 non ha niente sopra gli 880 Hz.
 
-**Se qualcuno chiede cosa è cambiato nel codice:** niente, nella sintesi. Dodici
+**Se qualcuno chiede cosa è cambiato nel codice:** niente, nella sintesi. Trenta
 note in più nella partitura, e per la prima volta in tutto il talk alcune hanno
 lo stesso istante di attacco. `renderScore` non sa cosa sia un accordo — somma
 buffer a un offset di campioni, e stavolta l'offset è lo stesso. La polifonia,

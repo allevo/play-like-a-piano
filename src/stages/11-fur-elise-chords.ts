@@ -13,54 +13,61 @@ import type { RenderResult, RenderSettings } from "./types.ts";
 
 // TALK_START
 // The melody of stage 9, note for note. What is new sits underneath it: notes
-// that share an onset. Nothing in `renderScore` knows what a chord is — three
-// notes with the same `at` are three buffers added at the same sample offset,
+// that share an onset. Nothing in `renderScore` knows what a chord is — five
+// notes with the same `at` are five buffers added at the same sample offset,
 // which is what the sum has been doing since the first note of stage 9.
 
 /** The left hand is played softer than the melody it holds up. */
-const BASS = 0.5;
+const BASS = 0.62;
 
 // BEGIN_NEW
 /**
  * The left hand as held chords. Stage 9 spreads these same harmonies out in
  * time, one note after another, so they fit in the gaps the melody leaves; here
- * they are struck together and held underneath it, which is what the score
- * actually asks for.
+ * they are struck together and held underneath it.
  *
- * Bars 1 and 4 — the opening figure and its return — stay bare: the piece
- * leaves them unaccompanied, and that silence is what makes the chords land.
+ * Each chord is voiced across two octaves, from a low root for weight up to E4
+ * for presence, and that span is the whole point. The partial table in stage 7
+ * stops at eight partials: on an A2 at 110 Hz that puts the last one at 880 Hz
+ * and leaves everything above it empty, so low notes alone add no body at all.
+ * The upper voices reach 2.6 kHz and fill the band where the ear hears a chord.
+ * Both chords also carry their third — C4 for the minor, G#3 for the major —
+ * and both top out on E4, so the upper voice never moves.
  */
+const aMinor = ["A2", "E3", "A3", "C4", "E4"];
+const eMajor = ["E2", "E3", "G#3", "B3", "E4"];
+
+/** One chord: every note struck on the same sixteenth, and held for `beats`. */
+function chord(notes: string[], at: number, beats: number): ScoreNote[] {
+  return notes.map((note) => ({ note, at, beats, velocity: BASS }));
+}
+
 export const leftHand: ScoreNote[] = [
-  // A minor, under the first landing on A4.
-  { note: "A2", at: 8, beats: 5, velocity: BASS },
-  { note: "E3", at: 8, beats: 5, velocity: BASS },
-  { note: "A3", at: 8, beats: 5, velocity: BASS },
-  // E major, under B4.
-  { note: "E2", at: 13, beats: 5, velocity: BASS },
-  { note: "E3", at: 13, beats: 5, velocity: BASS },
-  { note: "G#3", at: 13, beats: 5, velocity: BASS },
-  // A minor again, under C5.
-  { note: "A2", at: 18, beats: 3, velocity: BASS },
-  { note: "E3", at: 18, beats: 3, velocity: BASS },
-  { note: "A3", at: 18, beats: 3, velocity: BASS },
-  // A minor under the long final A4.
-  { note: "A2", at: 29, beats: 12, velocity: BASS },
-  { note: "E3", at: 29, beats: 12, velocity: BASS },
-  { note: "A3", at: 29, beats: 12, velocity: BASS },
+  ...chord(aMinor, 0, 8), // under the opening figure
+  ...chord(aMinor, 8, 5), // under the landing on A4
+  ...chord(eMajor, 13, 5), // under B4
+  ...chord(aMinor, 18, 3), // under C5
+  ...chord(aMinor, 21, 8), // under the figure's return
+  ...chord(aMinor, 29, 12), // under the long final A4
 ];
 // END_NEW
 
 const DAMPER_SECONDS = 0.5;
 
 /**
- * Well under the melody's own gain, and not only for balance.
- * `synthesizeStrings` starts its three strings at fixed phases and reseeds the
- * same hammer noise on every call, so notes struck on the *same* sample are
- * correlated: their transients line up and add almost linearly instead of
- * growing as the square root. Stage 9 never showed this, because no two of its
- * notes share an onset. Here four do, at the downbeat of every chord.
+ * Five notes struck on the same sample cost far more headroom than five notes
+ * spread over time, and not because of the hammer: measured, the transient
+ * makes no difference to the peak at all. It is the strings. A chord is
+ * consonant precisely because its notes share partials, those shared partials
+ * all start at the same fixed phase, and identical frequencies at identical
+ * phases add in full. The peak lands some 70 ms after a downbeat, well past the
+ * hammer's 25 ms.
+ *
+ * So the ceiling here is set by the model's fixed starting phases, and this
+ * gain is the measured answer to it: the accompaniment sits level with the
+ * melody, and the soft limiter shapes about 2 % of the samples.
  */
-const LEFT_HAND_GAIN = 0.45;
+const LEFT_HAND_GAIN = 0.52;
 
 export async function renderFurEliseChords(
   settings: RenderSettings,

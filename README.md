@@ -19,7 +19,7 @@ npm run dev      # http://localhost:5173
 
 ```bash
 npm run build    # tsc + vite build
-npm run test     # vitest (101 test)
+npm run test     # vitest (103 test)
 ```
 
 Richiede un browser moderno con la Web Audio API. Chrome, Firefox, Safari ed
@@ -52,7 +52,7 @@ sempre.
 | 7 | Corde | `08-multiple-strings.ts` | Tre corde a un paio di cent di distanza, che battono l'una contro l'altra |
 | 8 | Pianoforte | `09-piano.ts` | Biquad della tavola armonica e una stanza generata, resi offline |
 | 9 | Für Elise | `10-fur-elise.ts` | Una melodia è una somma di note a istanti diversi |
-| 10 | Accordi | `11-fur-elise-chords.ts` | Lo stesso brano con la mano sinistra: note che condividono l'istante |
+| 10 | Accordi | `11-fur-elise-chords.ts` | Lo stesso brano armonizzato: note che condividono l'istante |
 
 I file conservano la numerazione originale del talk, che aveva anche una fase
 "Frequenza e ottave" (`02`) poi assorbita nella prima.
@@ -189,15 +189,24 @@ di campioni — la stessa addizione della fase 9, con l'offset che smette di
 cambiare. La partitura della melodia resta identica e le si affianca `leftHand`,
 dodici note su quattro istanti.
 
-Il dettaglio non ovvio è il picco. `synthesizeStrings` fa partire le sue tre
-corde da fasi fisse e riparte dallo stesso seme di rumore a ogni chiamata:
-finché le note attaccano in istanti diversi — come in tutte le fasi precedenti —
-non si vede, ma quattro note che attaccano sullo *stesso* campione hanno
-transienti identici che si sommano in fase, e il picco cresce quasi
-linearmente invece che come radice di N. Per questo la mano sinistra entra con
-un guadagno suo, più basso, invece di condividere quello della melodia: così la
-melodia della fase 10 è campione per campione quella della fase 9, e l'unica
-differenza che si sente è l'armonia.
+Due dettagli non ovvi.
+
+**La voicing è larga per forza.** La tabella delle parziali della fase 7 si
+ferma a otto: su un A2 a 110 Hz l'ottava parziale cade a 880 Hz e sopra non c'è
+più niente, quindi un accordo di sole note gravi non aggiunge corpo — aggiunge
+un tonfo. Ogni accordo copre perciò due ottave, dalla radice grave fino a E4, e
+sono le voci alte a dargli presenza.
+
+**Il picco viene dalle corde, non dal martelletto.** Misurato: azzerare il
+transiente non cambia il picco di una cifra decimale. Un accordo è consonante
+proprio perché le sue note condividono parziali, quelle parziali condivise
+partono tutte dalla stessa fase fissa, e frequenze identiche in fase identica si
+sommano per intero — il picco cade una settantina di millisecondi dopo
+l'attacco, ben oltre i 25 ms del martelletto. È il tetto imposto dalle fasi
+fisse del modello: il soft limiter finisce per sagomare circa il 2 % dei
+campioni, contro lo 0,03 % della fase 9. La mano sinistra ha quindi un guadagno
+suo, tarato su quel vincolo, mentre la melodia resta campione per campione
+quella della fase 9: l'unica differenza che si sente è l'armonia.
 
 ### Determinismo
 
