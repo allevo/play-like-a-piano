@@ -201,9 +201,9 @@ grafici ma non suona. Premi Spazio (o Suona) per sentire la modifica — di
 proposito, così chi presenta non è mai colto di sorpresa da una nota.
 
 **Für Elise impasta.** Le note si sovrappongono di proposito, ma il bilancio è
-tarato con due sole costanti in `src/stages/10-fur-elise.ts`:
-`PIANO_TAIL_SECONDS` (quanto a lungo lo smorzatore lascia suonare una nota dopo
-il rilascio) e `PIANO_NOTE_GAIN` (quanto piano entra ogni nota nella somma).
+tarato con due sole costanti in `src/stages/10-fur-elise.ts`: `DAMPER_SECONDS`
+(quanto a lungo lo smorzatore lascia suonare una nota dopo il rilascio) e
+`PIANO_NOTE_GAIN` (quanto piano entra ogni nota nella somma).
 Alzare la coda impasta e costa CPU; abbassarla rende il tutto staccato.
 
 **Il layout è compresso.** È pensato per 1440×900 e 1920×1080. Sotto i 1200 px

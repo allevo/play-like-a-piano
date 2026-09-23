@@ -85,19 +85,20 @@ function mixInto(
 /**
  * Render every note of a score with `voice` and sum them into one buffer.
  *
- * `tailSeconds` is the damper. Our string decays over three and a half seconds,
- * so at this tempo a note is still at 96 % of its amplitude when the next one
- * arrives, and the passage turns to mud. On a real piano the damper drops back
- * onto the string the moment the key is released. We model it by rendering each
- * note for its written length plus `tailSeconds`, and handing that same
- * `tailSeconds` to the release ramp of stage 2 — so the note rings freely while
- * it is held, then fades. Long enough to connect one note to the next, short
- * enough that the fast alternation at the start stays legible.
+ * The damper is the felt pad resting on every string: pressing the key lifts it
+ * and lets the string ring, releasing the key drops it back and stops the
+ * string. Without one our string decays over three and a half seconds, so at
+ * this tempo a note is still at 96 % of its amplitude when the next one arrives
+ * and the passage turns to mud. We model it by rendering each note for its
+ * written length plus `damperSeconds`, and handing that same `damperSeconds` to
+ * the release ramp of stage 2 — the note rings freely while held, then the ramp
+ * takes it to zero. Note that it *multiplies*, one note at a time, so it
+ * belongs to `x`: the soundboard and the room still convolve the sum, once.
  */
 function renderScore(
   score: ScoreNote[],
   voice: (settings: RenderSettings) => Float32Array,
-  tailSeconds: number,
+  damperSeconds: number,
   gain: number,
   settings: RenderSettings,
 ): Float32Array {
@@ -105,7 +106,10 @@ function renderScore(
 
   const seconds = score.reduce(
     (latest, note) =>
-      Math.max(latest, (note.at + note.beats) * SIXTEENTH_SECONDS + tailSeconds),
+      Math.max(
+        latest,
+        (note.at + note.beats) * SIXTEENTH_SECONDS + damperSeconds,
+      ),
     0,
   );
   const melody = new Float32Array(Math.ceil(seconds * sampleRate));
@@ -114,8 +118,8 @@ function renderScore(
     const samples = voice({
       ...settings,
       frequency: frequencyOfNote(note.note),
-      duration: note.beats * SIXTEENTH_SECONDS + tailSeconds,
-      releaseDuration: tailSeconds || settings.releaseDuration,
+      duration: note.beats * SIXTEENTH_SECONDS + damperSeconds,
+      releaseDuration: damperSeconds || settings.releaseDuration,
       velocity: note.velocity ?? settings.velocity,
     });
 
@@ -145,6 +149,7 @@ export function renderFurEliseSine(settings: RenderSettings): RenderResult {
     renderScore(
       furElise,
       (noteSettings) => renderSine(noteSettings).samples,
+      // No damper: a bare sine does not decay, so there is nothing to stop.
       0,
       SINE_NOTE_GAIN,
       settings,
@@ -152,7 +157,9 @@ export function renderFurEliseSine(settings: RenderSettings): RenderResult {
   );
 }
 
-const PIANO_TAIL_SECONDS = 0.5;
+// Not the ~50 ms the felt really takes: this is the whole gesture, the key held
+// a moment too long plus the damper coming down after it.
+const DAMPER_SECONDS = 0.5;
 
 /** Half a dozen decaying notes overlap at once, so each goes in quietly enough
  *  that their sum never has to lean on the limiter. */
@@ -165,7 +172,7 @@ export async function renderFurElisePiano(
   const dry = renderScore(
     furElise,
     synthesizeStrings,
-    PIANO_TAIL_SECONDS,
+    DAMPER_SECONDS,
     PIANO_NOTE_GAIN,
     settings,
   );

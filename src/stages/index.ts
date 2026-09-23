@@ -268,7 +268,7 @@ export const stages: SynthStage[] = [
     shortTitle: "Pianoforte",
     concept: "La corda non fa suono: fa una forza. A suonare è il corpo nella stanza.",
     explanation:
-      "Una corda da sola non riesce a fare suono: è troppo debole. Inoltre, il martelletto, il ponte e la corda stessa non sono \"perfetti\". La convoluzione della tavola armonica con tutto questo è il timbro dello strumento.",
+      "Una corda da sola non riesce a fare suono: è troppo debole. Inoltre, il martelletto, il ponte e la corda stessa non sono \"perfetti\". La convoluzione della tavola armonica con tutto questo è il timbro dello strumento. L'unico comando che riscrive h è il pedale di risonanza: alza tutti gli smorzatori insieme, e le altre duecento corde restano libere di vibrare per simpatia — in quel momento entrano a far parte del corpo risonante.",
     formula:
       "y = x ∗ h\n" +
       "x = forza delle corde sul ponte,   h = h_tavola ∗ h_stanza",
@@ -281,12 +281,14 @@ export const stages: SynthStage[] = [
   {
     id: "fur-elise",
     index: 9,
-    title: "Für Elise — la melodia",
+    title: "Für Elise, la melodia",
     shortTitle: "Für Elise",
-    concept: "Una melodia è un elenco di note e di istanti; suonarla è una somma.",
+    concept: "Una melodia è un elenco di note e di istanti; suonarla è la convoluzione di una somma.",
     explanation:
-      "Non serve niente di nuovo. Ogni nota della partitura viene resa con la stessa identica funzione delle fasi precedenti — le cambia solo la frequenza — e finisce sommata dentro un unico buffer lungo, all'istante che le spetta. È tutto qui il concetto di polifonia: un'addizione, campione per campione. Ogni nota viene resa più lunga di quanto è scritta, così la sua coda continua a suonare sotto quella dopo: è questo che si sente come legato. Il corpo del pianoforte, invece, si applica una volta sola sull'intero brano — perché un pianoforte ha una tavola armonica sola e sta in una stanza sola.",
-    formula: "x(t) = Σₖ notaₖ(t − tₖ)",
+      "Grazie alla linearità della convoluzione, al posto di calcolare la convoluzione di ogni nota e di sommarla, possiamo fare l'opposto: sommare le note e poi calcolare la convoluzione del risultato. Per suonare la melodia, abbia simulato lo smorzatore attivato quando il tasto del pianoforte si alza. Questo ci permette di \"smettere\" di suonare la nota per poter introdurre quella successiva.",
+    formula:
+      "x(t) = Σₖ notaₖ(t − tₖ) · smorzatoreₖ(t − tₖ)\n" +
+      "y = x ∗ h        (una volta sola, su tutto il brano)",
     showSpectrum: false,
     parameters: [],
     sourceCode: furEliseSource,

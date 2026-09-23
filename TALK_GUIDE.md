@@ -284,16 +284,22 @@ la colorazione del corpo anziché le ampiezze grezze delle parziali.
 **Concetto.** Una melodia è un elenco di note e di istanti. Suonarla è una
 somma.
 
-**Formula.** `x(t) = Σₖ notaₖ(t − tₖ)`.
+**Formula.** `x(t) = Σₖ notaₖ(t − tₖ) · smorzatoreₖ(t − tₖ)`, e `y = x ∗ h`
+una volta sola su tutto il brano. Lo smorzatore sta dentro la sommatoria e
+moltiplica; `h` sta fuori e convolve — è la risposta in due righe a «lo
+smorzatore cambia `h`?».
 
 **Modifica al codice.** Nessuna sintesi nuova. Ogni nota della partitura viene
 resa con le stesse funzioni di prima — cambia solo `frequency`, con i numeri
 della digressione della fase 1 — e viene sommata dentro un unico buffer lungo
-all'offset di campioni che le spetta. Due dettagli meritano una frase ciascuno:
-lo **smorzatore** (la corda decade in 3,4 s, quindi al rilascio del tasto la
-spegniamo con la rampa della fase 2, altrimenti a questo tempo tutto impasta) e
-il fatto che la **tavola armonica e la stanza girano una volta sola** su tutto
-il brano, non nota per nota.
+all'offset di campioni che le spetta. I due dettagli che contano sono già
+scritti sulla slide: lo **smorzatore** (`DAMPER_SECONDS`, la rampa che ferma la
+corda al rilascio del tasto, altrimenti a questo tempo tutto impasta) e il
+fatto che la **tavola armonica e la stanza girano una volta sola** su tutto il
+brano, non nota per nota. Se qualcuno chiede perché lo smorzatore non finisce
+dentro `h`: preme sulla corda, prima del ponte, quindi modella `x` esattamente
+come il martelletto. L'unico comando che riscrive `h` è il pedale di risonanza,
+ed è nominato nella fase 8.
 
 **Dì.** "Ci siamo lasciati alle spalle una sola nota. Una melodia non richiede
 niente di nuovo: è la stessa funzione, chiamata ventisette volte con ventisette
