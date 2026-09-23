@@ -112,7 +112,7 @@ function envelopeIllustration(): string {
     anchor(x0) +
     anchor(x0 + w) +
     vibrating +
-    label(x0 - 6, 34, "la corda percossa oscilla, poi si spegne", HIGHLIGHT, 12) +
+    label(x0 - 6, 34, "la corda percossa perde energia", HIGHLIGHT, 12) +
     label(x0 - 34, yc + postH + 20, "estremo fisso", DIM, 11) +
     label(x0 + w - 40, yc + postH + 20, "estremo fisso", DIM, 11),
   );

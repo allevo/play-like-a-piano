@@ -140,7 +140,7 @@ export const stages: SynthStage[] = [
     shortTitle: "Sinusoide",
     concept: "Un suono digitale non è altro che una sequenza di numeri.",
     explanation:
-      "Riempiamo un Float32Array con un'ampiezza per campione. A 48 kHz sono 48 000 numeri per ogni secondo di suono. I numeri vengono dall'oscillazione più semplice che esista: una sinusoide a 440 Hz. Passa quell'array alla Web Audio API e diventa un tono.",
+      "Riempiamo un array con un'ampiezza per campione. Generando 48 000 numeri per ogni secondo (48 kHz) e volendo un audio di 2,8 secondi, la lunghezza totale è di 48 000 · 2,8 = 134 400 elementi. Per valorizzare l'array, usiamo una sinusoide a 440 Hz ovvero sin(2π · 440 · t).",
     formula: "x(t) = A · sin(2πft),   t = i / sampleRate",
     parameters: [],
     sourceCode: sineSource,
